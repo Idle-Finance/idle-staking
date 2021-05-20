@@ -1,0 +1,29 @@
+{
+  "name": "idle-staking",
+  "version": "0.0.1",
+  "description": "idle staking contract implementation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Idle-Finance/idle-staking.git"
+  },
+  "keywords": [
+    "idle",
+    "staking",
+    "defi",
+    "etheruem"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Idle-Finance/idle-staking/issues"
+  },
+  "homepage": "https://github.com/Idle-Finance/idle-staking#readme",
+  "devDependencies": {
+    "@nomiclabs/hardhat-vyper": "^2.0.1",
+    "hardhat": "^2.3.0"
+  }
+}
