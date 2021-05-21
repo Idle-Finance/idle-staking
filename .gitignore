@@ -1,6 +1,8 @@
 node_modules/
-node_modules
 
-#Hardhat files
+# Hardhat files
 cache
 artifacts
+
+# Environment files
+.env
