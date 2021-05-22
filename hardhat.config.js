@@ -18,6 +18,10 @@ task("accounts", "Prints the list of accounts", async () => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+function parseBoolean(str) {
+  return /true/i.test(str);
+}
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -31,7 +35,8 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        enabled: parseBoolean(process.env.ENABLE_FORKING)
       }
     },
     local: {
