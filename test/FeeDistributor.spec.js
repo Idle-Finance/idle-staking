@@ -15,6 +15,7 @@ describe("FeeDistributor.vy", async () => {
   let feeDistributor
 
   let startTime
+  let startWeek
 
   let WEEK = 7 * 86400
 
@@ -38,6 +39,8 @@ describe("FeeDistributor.vy", async () => {
       deployer.address,
       deployer.address
     )
+
+    startWeek = await feeDistributor.start_time() // cache the contract start week value
   })
 
   describe('#__init__', async () => {
@@ -57,13 +60,22 @@ describe("FeeDistributor.vy", async () => {
       expect(await feeDistributor.emergency_return()).to.equal(deployer.address)
     })
 })
-describe("#checkpoint_token", async () => {
-    describe("When can_checkpoint_token == false", async () => {
+  describe("#checkpoint_token", async () => {
+    describe("When balance of reward token == 0", async () => {
       it("Emits a CheckpointToken log", async () => {
-        let currentTimestamp = toEtherBN(await time.latest())
-        expect(feeDistributor.checkpoint_token())
+        await expect(feeDistributor.checkpoint_token())
           .to.emit(feeDistributor, "CheckpointToken")
-          .withArgs(currentTimestamp, 0)
+      })
+    })
+    describe("When balance of reward token > 0", async () => {
+      let toDistribute = toWei('1000')
+      beforeEach(async () => {
+        await erc20Reward.transfer(feeDistributor.address, toDistribute)
+        await feeDistributor.checkpoint_token()
+      })
+      it("Updates Tokens per week array", async () => {
+        expect(await feeDistributor.tokens_per_week(startWeek))
+          .to.equal(toDistribute)
       })
     })
   })
