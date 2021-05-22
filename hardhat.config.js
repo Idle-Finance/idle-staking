@@ -1,7 +1,9 @@
+require("@nomiclabs/hardhat-ethers")
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-vyper");
 require("hardhat-gas-reporter");
+require("hardhat-deploy");
 
 require('dotenv').config()
 
@@ -28,7 +30,6 @@ function parseBoolean(str) {
 module.exports = {
   gasReporter: {
     currency: 'USD',
-    gasPrice: 60,
     excludeContracts: ['contracts/mock/'],
     coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY
   },
@@ -42,6 +43,11 @@ module.exports = {
     local: {
       url: "http://127.0.0.1:8545",
       timeout: 2000000
+    }
+  },
+  namedAccounts: {
+    idle: {
+      1: '0x875773784af8135ea0ef43b5a374aad105c5d39e'
     }
   },
   solidity: "0.8.4",
