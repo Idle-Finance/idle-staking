@@ -79,4 +79,13 @@ describe("FeeDistributor.vy", async () => {
       })
     })
   })
+  describe("#claim", async () => {
+    describe("When #stakers = 0", async () => {})
+    describe("When #stakers = 1", async () => {
+      describe("When reward token to distribute > 0", async () => {})
+    })
+    describe("When #stakers > 1", async () => {
+      it("Distributes rewards proportional to stake")
+    })
+  })
 })
