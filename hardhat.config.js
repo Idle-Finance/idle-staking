@@ -26,10 +26,18 @@ module.exports = {
     currency: 'USD',
     gasPrice: 60,
     excludeContracts: ['contracts/mock/'],
-    coinmarketcap: process.env.COIN_MARKET_CAP_API
+    coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY
   },
   networks: {
-    hardhat : {}
+    hardhat: {
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
+      }
+    },
+    local: {
+      url: "http://127.0.0.1:8545",
+      timeout: 2000000
+    }
   },
   solidity: "0.8.4",
   vyper: {
