@@ -4,6 +4,7 @@ require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-vyper");
 require("hardhat-gas-reporter");
 require("hardhat-deploy");
+require("hardhat-deploy-ethers")
 
 require('dotenv').config()
 
@@ -47,7 +48,8 @@ module.exports = {
   },
   namedAccounts: {
     idle: {
-      1: '0x875773784af8135ea0ef43b5a374aad105c5d39e'
+      1: '0x875773784af8135ea0ef43b5a374aad105c5d39e',
+      1337: '0x875773784af8135ea0ef43b5a374aad105c5d39e'
     }
   },
   solidity: "0.8.4",

@@ -1,44 +1,21 @@
-const { HardwareSigner } = require("../lib/hardware-signer")
+const { deployAndSave } = require("../lib/util")
 
-module.exports = async ({getNamedAccounts, getChainId, deployments, ethers}) => {
-  const { deploy } = deployments
+module.exports = async ({getNamedAccounts, network, ethers}) => {
   const { idle } = await getNamedAccounts()
   
-  let signer
-  let chainId = await getChainId()
-  switch (chainId) {
-    case '1':
-      // mainnet deployment configuration
-      signer = new HardwareSigner(ethers.provider, null, "m/44'/60'/0'/0/0"); break
-    case '42':
-      // kovan deployment configuration
-      signer = new HardwareSigner(ethers.provider, null, "m/44'/60'/0'/42/0"); break
-    case '1337':
-      // kovan deployment configuration
-      signer = new HardwareSigner(ethers.provider, null, "m/44'/60'/0'/1337/0"); break
-    default:
-      signer = (await ethers.getSigners())[0]
-  }
+  console.log(`------------------ Executing deployment 00 on network ${network.name} ------------------`)
+  console.log()
 
-  console.log(await signer.getAddress())
-
-  let idleAddress
+  let idleContract
   if (idle==null) {
-    // on test networks deploy mockIDLE
-    let receipt = await deploy("IDLE", {
-      from: signer.address,
-      args: ['IDLE', 'IDLE', ethers.utils.parseEther('1000')],
-      contract: "ERC20Mock"
-    })
-    idleAddress = receipt.address
+    console.info("Idle contract not set, deploying mock idle")
+    idleContract = await deployAndSave('MockIDLE', 'ERC20Mock', ['IDLE', 'IDLE', ethers.utils.parseEther('1000')])
   }
   else {
-    idleAddress = idle
+    idleContract = await ethers.getContractAt("ERC20", idle)
   }
 
-  await deploy('VotingEscrow', {
-    from: signer.address,
-    args: [idleAddress, 'Staked IDLE', 'stkIDLE', '1.0'],
-    log: true
-  })
+  await deployAndSave('StakedIdle', 'VotingEscrow', [idleContract.address, 'Staked IDLE', 'stkIDLE', '1.0'])
+
+  console.log()
 }

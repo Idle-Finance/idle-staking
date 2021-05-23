@@ -1,6 +1,11 @@
+const { deployAndSave } = require("../lib/util")
 
+module.exports = async ({ethers, network}) => {
+  console.log(`------------------ Executing deployment 01 on network ${network.name} ------------------`)
+  console.log()
 
-module.exports = async ({getNamedAccounts, deployments}) => {
-  const { deploy } = deployments
-  const { deployer } = await getNamedAccounts();
+  let stakedIdle = await ethers.getContract('StakedIdle')
+  console.log(`StakedIDLE is at ${stakedIdle.address}`)
+
+  console.log()
 }
