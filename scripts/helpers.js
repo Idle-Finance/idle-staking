@@ -1,6 +1,9 @@
 const { BigNumber } = require("@ethersproject/bignumber");
 const {time} = require("@openzeppelin/test-helpers")
 
+const toWei = ethers.utils.parseEther;
+const toEtherBN = (x) => ethers.BigNumber.from(x.toString());
+
 module.exports = {
   check: (a, b, message) => {
     a = a.toString();
@@ -37,5 +40,9 @@ module.exports = {
   },
   waitDays: async d => {
     await time.increase(time.duration.days(d));
+  },
+  getLockDuration: async durationInYears => {
+    let currentTime = await time.latest()
+    return toEtherBN(currentTime.add(time.duration.years(durationInYears)))
   }
 }
