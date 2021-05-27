@@ -115,11 +115,10 @@ smart_wallet_checker: public(address)
 admin: public(address)  # Can and will be a smart contract
 future_admin: public(address)
 
-idle: public(address) # address of idle contract
 vote_delegatee: public(address) # address of idle delegated votes
 
 @external
-def __init__(token_addr: address, _name: String[64], _symbol: String[32], _version: String[32], _idle: address, _vote_delegate: address):
+def __init__(token_addr: address, _name: String[64], _symbol: String[32], _version: String[32], _vote_delegate: address):
     """
     @notice Contract constructor
     @param token_addr `ERC20CRV` token address
@@ -142,16 +141,16 @@ def __init__(token_addr: address, _name: String[64], _symbol: String[32], _versi
     self.symbol = _symbol
     self.version = _version
 
-    self.idle = _idle
+    # Delegate governance votes to address
     self.vote_delegatee = _vote_delegate
-    IIdle(_idle).delegate(_vote_delegate)
+    IIdle(token_addr).delegate(_vote_delegate)
 
 @external
 def update_delegate(_new_delegatee: address):
     assert msg.sender == self.admin  # dev: admin only
     self.vote_delegatee = _new_delegatee
 
-    IIdle(self.idle).delegate(_new_delegatee)
+    IIdle(self.token).delegate(_new_delegatee)
 
 @external
 def commit_transfer_ownership(addr: address):

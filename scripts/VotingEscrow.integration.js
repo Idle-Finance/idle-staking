@@ -13,7 +13,13 @@ async function main() {
   }
 
   let idleContract = await ethers.getContractAt('ERC20', idle)
-  let stakedIdle = await (await ethers.getContractFactory('VotingEscrow')).deploy(idleContract.address, 'StakedIDLE', 'stkIDLE', '1.0')
+  let stakedIdle = await (await ethers.getContractFactory('VotingEscrow')).deploy(
+    idleContract.address, // Staking Token
+    'StakedIDLE', // Token Name
+    'stkIDLE', // Token Symbol
+    '1.0', // Token Version
+    (await ethers.getSigners())[0].address
+  )
   console.log("Deployed staked Idle")
 
   let [idleContractAsStaker, staker] = await sudo(personWithIdle, idleContract)

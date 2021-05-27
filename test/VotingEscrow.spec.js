@@ -1,9 +1,6 @@
 const { expect } = require('chai')
-const { ethers, waffle } = require('hardhat')
-const { deployMockContract } = waffle
+const { ethers } = require('hardhat')
 const { time } = require('@openzeppelin/test-helpers')
-
-const idleABI = require('./abi/idle.json')
 
 const toWei = ethers.utils.parseEther;
 const toEtherBN = (x) => ethers.BigNumber.from(x.toString());
@@ -32,16 +29,13 @@ describe("VotingEscrow.vy", () => {
 
   beforeEach(async () => {
     [deployer, ...stakers] = await ethers.getSigners()
-    erc20 = await (await ethers.getContractFactory("ERC20Mock")).deploy("Token", "TOK", toWei("20000"))
-    mockIdle = await deployMockContract(deployer, idleABI)
-    await mockIdle.mock.delegate.returns()
+    erc20 = await (await ethers.getContractFactory("ERC20MockWithDelegate")).deploy("Token", "TOK", toWei("20000"))
 
     veTok = await (await ethers.getContractFactory("VotingEscrow")).deploy(
       erc20.address,
       "Staked Token",
       "stkTOK",
       "1.0",
-      mockIdle.address,
       deployer.address
     )
   })
@@ -64,8 +58,8 @@ describe("VotingEscrow.vy", () => {
     it('Should set vote delegatee', async() => {
       expect(await veTok.vote_delegatee()).to.equal(deployer.address)
     })
-    it('Should set IDLE token address', async() => {
-      expect(await veTok.idle()).to.equal(mockIdle.address)
+    it('Should set vote delegate on token', async() => {
+      expect(await erc20.delegates(veTok.address)).to.equal(deployer.address)
     })
   })
 
