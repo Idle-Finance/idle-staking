@@ -1,6 +1,9 @@
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers, waffle } = require('hardhat')
+const { deployMockContract } = waffle
 const { time } = require('@openzeppelin/test-helpers')
+
+const idleABI = require('./abi/idle.json')
 
 const toWei = ethers.utils.parseEther;
 const toEtherBN = (x) => ethers.BigNumber.from(x.toString());
@@ -21,6 +24,7 @@ describe("VotingEscrow.vy", () => {
   let stakers
 
   let erc20
+  let mockIdle
   let veTok
 
   let WEEK = 7 * 86400 // 1 week in seconds
@@ -29,12 +33,16 @@ describe("VotingEscrow.vy", () => {
   beforeEach(async () => {
     [deployer, ...stakers] = await ethers.getSigners()
     erc20 = await (await ethers.getContractFactory("ERC20Mock")).deploy("Token", "TOK", toWei("20000"))
+    mockIdle = await deployMockContract(deployer, idleABI)
+    await mockIdle.mock.delegate.returns()
 
     veTok = await (await ethers.getContractFactory("VotingEscrow")).deploy(
       erc20.address,
       "Staked Token",
       "stkTOK",
-      "1.0"
+      "1.0",
+      mockIdle.address,
+      deployer.address
     )
   })
   describe("#__init__", async () => {
@@ -52,6 +60,12 @@ describe("VotingEscrow.vy", () => {
     })
     it("Should set token symbol correctly", async () => {
       expect(await veTok.symbol()).to.equal("stkTOK")
+    })
+    it('Should set vote delegatee', async() => {
+      expect(await veTok.vote_delegatee()).to.equal(deployer.address)
+    })
+    it('Should set IDLE token address', async() => {
+      expect(await veTok.idle()).to.equal(mockIdle.address)
     })
   })
 
@@ -123,6 +137,23 @@ describe("VotingEscrow.vy", () => {
         // token is transfered from contract to staker
         expect(await veTok.connect(staker).withdraw()).to.changeTokenBalances(erc20, [staker, veTok], [-amount, amount])
       })
+    })
+  })
+  describe('#update_delegate', async() => {
+    let account1
+    let account2
+
+    beforeEach(async() => {
+      account1 = stakers[0]
+      account2 = stakers[1]
+    })
+    it('Reverts when called by non-admin EOA', async() => {
+      expect(veTok.connect(account1).update_delegate(account2.address)).to.be.reverted
+      expect(await veTok.vote_delegatee()).to.equal(deployer.address)
+    })
+    it('To execute when called by owner', async() => {
+      await veTok.connect(deployer).update_delegate(account1.address)
+      expect(await veTok.vote_delegatee()).to.equal(account1.address)
     })
   })
 })
