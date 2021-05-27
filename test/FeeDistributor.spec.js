@@ -1,6 +1,9 @@
 const { expect } = require('chai')
-const { ethers } = require('hardhat')
+const { ethers, waffle } = require('hardhat')
+const { deployMockContract } = waffle
 const { time } = require('@openzeppelin/test-helpers')
+
+const idleABI = require('./abi/idle.json')
 
 const toWei = ethers.utils.parseEther;
 const toEtherBN = (x) => ethers.BigNumber.from(x.toString());
@@ -11,6 +14,7 @@ describe("FeeDistributor.vy", async () => {
 
   let erc20
   let erc20Reward
+  let mockIdle
   let veTok
   let feeDistributor
 
@@ -23,12 +27,16 @@ describe("FeeDistributor.vy", async () => {
     [deployer, ...stakers] = await ethers.getSigners()
     erc20 = await (await ethers.getContractFactory("ERC20Mock")).deploy("Token", "TOK", toWei("20000"))
     erc20Reward = await (await ethers.getContractFactory("ERC20Mock")).deploy("Reward", "REW", toWei("20000"))
+    mockIdle = await deployMockContract(deployer, idleABI)
+    await mockIdle.mock.delegate.returns()
 
     veTok = await (await ethers.getContractFactory("VotingEscrow")).deploy(
       erc20.address,
       "Staked Token",
       "stkTOK",
-      "1.0"
+      "1.0",
+      mockIdle.address,
+      deployer.address
     )
 
     startTime = toEtherBN(await time.latest())
