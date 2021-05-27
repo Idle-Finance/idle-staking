@@ -11,4 +11,4 @@
 `bash ./startLocalFork.sh`
 
 in a new bash window
-`npx hardhat run scripts/<scriptname>`
+`npx hardhat run scripts/<scriptname> --network local`
