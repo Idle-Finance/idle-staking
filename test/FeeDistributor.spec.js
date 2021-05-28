@@ -2,8 +2,30 @@ const { expect } = require('chai')
 const { ethers } = require('hardhat')
 const { time } = require('@openzeppelin/test-helpers')
 
-const toWei = ethers.utils.parseEther;
-const toEtherBN = (x) => ethers.BigNumber.from(x.toString());
+const WEEK = 7 * 86400
+
+const toWei = ethers.utils.parseEther
+const toEtherBN = (x) => ethers.BigNumber.from(x.toString())
+const toWeek = (x) => toEtherBN(x).div(WEEK).mul(WEEK)
+
+async function getLockDuration(durationInYears) {
+  let currentTime = await time.latest()
+  return toEtherBN(currentTime.add(time.duration.years(durationInYears)))
+}
+
+const distributeTokenToStaker = async (erc20, staker, amount='1000') => {
+  erc20.transfer(staker.address, toWei(amount))
+  return staker
+}
+
+const lockTokenForDuration = async(erc20, veTok, staker, amount='1000', duration=1) => {
+  await distributeTokenToStaker(erc20, staker, amount)
+
+  await erc20.connect(staker).approve(veTok.address, toWei(amount))
+  let lockEnd = await getLockDuration(duration)
+
+  await veTok.connect(staker).create_lock(toWei(amount), lockEnd)
+}
 
 describe("FeeDistributor.vy", async () => {
   let deployer
@@ -11,14 +33,11 @@ describe("FeeDistributor.vy", async () => {
 
   let erc20
   let erc20Reward
-  let mockIdle
   let veTok
   let feeDistributor
 
   let startTime
   let startWeek
-
-  let WEEK = 7 * 86400
 
   beforeEach(async () => {
     [deployer, ...stakers] = await ethers.getSigners()
@@ -61,6 +80,10 @@ describe("FeeDistributor.vy", async () => {
       expect(await feeDistributor.admin()).to.equal(deployer.address)
       expect(await feeDistributor.emergency_return()).to.equal(deployer.address)
     })
+
+    it("Should have can_checkpoint_token as false", async() => {
+      expect(await feeDistributor.can_checkpoint_token()).to.be.false
+    })
 })
   describe("#checkpoint_token", async () => {
     describe("When balance of reward token == 0", async () => {
@@ -82,12 +105,71 @@ describe("FeeDistributor.vy", async () => {
     })
   })
   describe("#claim", async () => {
-    describe("When #stakers = 0", async () => {})
+    let toDistribute = toWei('1000')
+    let distributeFees = async() => {
+      await feeDistributor.checkpoint_token()
+
+      let currentTime = await time.latest()
+      let currentWeek = await toWeek(currentTime)
+      let nextWeek = currentWeek.add(WEEK)
+      await time.increaseTo(nextWeek.toString())
+
+      await feeDistributor.checkpoint_token()
+      await erc20Reward.transfer(feeDistributor.address, toDistribute)
+      await feeDistributor.checkpoint_token()
+
+      await time.increase(time.duration.weeks(1))
+      await feeDistributor.checkpoint_token()
+    }
+    describe("When #stakers = 0", async () => {
+      beforeEach(() => {
+        distributeFees()
+      })
+      it('Fails to claim', async() => {
+        expect(feeDistributor.connect(stakers[0])['claim()']()).to.be.reverted
+      })
+    })
     describe("When #stakers = 1", async () => {
-      describe("When reward token to distribute > 0", async () => {})
+      let staker
+
+      beforeEach(async() => {
+        staker = stakers[0]
+        await lockTokenForDuration(erc20, veTok, staker)
+        await distributeFees()
+      })
+      it('Claims full token balance', async() => {
+        await expect(() => feeDistributor.connect(staker)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker, feeDistributor], [toWei('1000'), toWei('-1000')])
+      })
     })
     describe("When #stakers > 1", async () => {
-      it("Distributes rewards proportional to stake")
+      let staker1
+      let staker2
+
+      beforeEach(async() => {
+        staker1 = stakers[0]
+        staker2 = stakers[1]
+      })
+      it("Distributes rewards when to staked evenly", async() => {
+        await lockTokenForDuration(erc20, veTok, staker1)
+        await lockTokenForDuration(erc20, veTok, staker2)
+        await distributeFees()
+
+        await expect(() => feeDistributor.connect(staker1)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker1, feeDistributor], [toWei('500'), toWei('-500')])
+        await expect(() => feeDistributor.connect(staker2)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker2, feeDistributor], [toWei('500'), toWei('-500')])
+      })
+      it("Distributed rewards when staked unevenly", async() => {
+        await lockTokenForDuration(erc20, veTok, staker1,amount='3000')
+        await lockTokenForDuration(erc20, veTok, staker2)
+        await distributeFees()
+
+        await expect(() => feeDistributor.connect(staker1)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker1, feeDistributor], [toWei('750'), toWei('-750')])
+        await expect(() => feeDistributor.connect(staker2)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker2, feeDistributor], [toWei('250'), toWei('-250')])
+      })
     })
   })
 })

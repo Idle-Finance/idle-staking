@@ -76,8 +76,8 @@ describe("VotingEscrow.vy", () => {
     
     it('Transfers token to contract', async () => {
       // Verify staker balance REDUCES, and contract balance INCREASES 
-      expect(await veTok.connect(staker).create_lock(amount, getLockDuration(1)))
-        .to.changeTokenBalances(erc20, [staker, veTok], [amount, -amount])
+      await expect(() => veTok.connect(staker).create_lock(amount, getLockDuration(1)))
+        .to.changeTokenBalances(erc20, [staker, veTok], [toWei('-1000'), toWei('1000')])
     })
 
     describe('When locking for 4 years', async () => {
@@ -129,7 +129,8 @@ describe("VotingEscrow.vy", () => {
         await time.increase(time.duration.years(1))
 
         // token is transfered from contract to staker
-        expect(await veTok.connect(staker).withdraw()).to.changeTokenBalances(erc20, [staker, veTok], [-amount, amount])
+        await expect(() => veTok.connect(staker).withdraw()).
+          to.changeTokenBalances(erc20, [staker, veTok], [toWei('1000'), toWei('-1000')])
       })
     })
   })
