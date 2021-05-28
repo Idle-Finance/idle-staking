@@ -107,19 +107,33 @@ describe("FeeDistributor.vy", async () => {
   describe("#claim", async () => {
     let toDistribute = toWei('1000')
     let distributeFees = async() => {
+      /*
+      Fees are distributed weekly based on the users proportion of stkIDLE to the total supply.
+      Total supply is calculated at the start of each week.
+
+      Fees can be claimed at the end of the week.
+
+      Fees are checkpointed using the `checkpoint_token` function daily.
+
+      Fees received between the last checkpoint of the previous week, and the first checkpoint of the next week are split evently.
+      */
+
+      // First checkpoint - incase no checkpoint was made since the previous week
       await feeDistributor.checkpoint_token()
 
       let currentTime = await time.latest()
       let currentWeek = await toWeek(currentTime)
       let nextWeek = currentWeek.add(WEEK)
-      await time.increaseTo(nextWeek.toString())
+      await time.increaseTo(nextWeek.toString()) // advance to next week
 
-      await feeDistributor.checkpoint_token()
-      await erc20Reward.transfer(feeDistributor.address, toDistribute)
-      await feeDistributor.checkpoint_token()
+      await feeDistributor.checkpoint_token() // first checkpoint of the new week
+      await erc20Reward.transfer(feeDistributor.address, toDistribute) // distribute fee
+      await feeDistributor.checkpoint_token() // checkpoint
 
-      await time.increase(time.duration.weeks(1))
-      await feeDistributor.checkpoint_token()
+      await time.increase(time.duration.weeks(1)) // advance by 1 week 
+      await feeDistributor.checkpoint_token() // checkpoint new week.
+
+      // at this point fee's can be claimed by stakers
     }
     describe("When #stakers = 0", async () => {
       beforeEach(() => {
@@ -169,6 +183,32 @@ describe("FeeDistributor.vy", async () => {
           .to.changeTokenBalances(erc20Reward, [staker1, feeDistributor], [toWei('750'), toWei('-750')])
         await expect(() => feeDistributor.connect(staker2)['claim()']())
           .to.changeTokenBalances(erc20Reward, [staker2, feeDistributor], [toWei('250'), toWei('-250')])
+      })
+      it("Handles distribution when extending lock during week", async() => {
+        await lockTokenForDuration(erc20, veTok, staker1)
+        await lockTokenForDuration(erc20, veTok, staker2)
+
+        await feeDistributor.checkpoint_token()
+
+        let nextWeek = toWeek(await time.latest()).add(WEEK)
+        await time.increaseTo(nextWeek.toString())
+
+        await feeDistributor.checkpoint_token()
+        await erc20Reward.transfer(feeDistributor.address, toDistribute)
+        await feeDistributor.checkpoint_token()
+
+        // Increase lock time of a user during the week
+        time.increase(time.duration.days(1))
+        await veTok.connect(staker1).increase_unlock_time(await getLockDuration(4))
+
+        await time.increase(time.duration.days(6)) // advance to next week
+        await feeDistributor.checkpoint_token()
+
+        // claim amounts should be the same
+        await expect(() => feeDistributor.connect(staker1)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker1, feeDistributor], [toWei('500'), toWei('-500')])
+        await expect(() => feeDistributor.connect(staker2)['claim()']())
+          .to.changeTokenBalances(erc20Reward, [staker2, feeDistributor], [toWei('500'), toWei('-500')])
       })
     })
   })
