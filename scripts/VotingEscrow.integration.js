@@ -1,5 +1,6 @@
 const { sudo, getLockDuration, check, checkAproximate } = require('./helpers')
 const { idle, personWithIdle } = require('./addresses.integration')
+const idleABI = require('../abi/idle.json')
 const { ethers, network } = require('hardhat');
 const { time } = require('@openzeppelin/test-helpers');
 
@@ -14,7 +15,7 @@ async function main() {
   }
 
   let deployer = (await ethers.getSigners())[0]
-  let idleContract = await ethers.getContractAt('ERC20MockWithDelegate', idle)
+  let idleContract = await ethers.getContractAt(idleABI, idle)
   let stakedIdle = await (await ethers.getContractFactory('VotingEscrow')).deploy(
     idleContract.address, // Staking Token
     'StakedIDLE', // Token Name
