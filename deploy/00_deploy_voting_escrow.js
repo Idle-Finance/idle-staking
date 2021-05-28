@@ -1,21 +1,14 @@
-const { deployAndSave } = require("../lib/util")
+const { deployAndSave, getNetworkSigner } = require("../lib/util")
 
-module.exports = async ({getNamedAccounts, network, ethers}) => {
-  const { idle } = await getNamedAccounts()
+module.exports = async ({getNamedAccounts, network}) => {
+  const { idle, voteDelegate } = await getNamedAccounts()
+
+  console.log(`------------------ Executing deployment 00 on network ${network.name} ------------------\n`)
+
+  await deployAndSave('StakedIdle', 'VotingEscrow', [idle, 'Staked IDLE', 'stkIDLE', '1.0', voteDelegate])
   
-  console.log(`------------------ Executing deployment 00 on network ${network.name} ------------------`)
   console.log()
-
-  let idleContract
-  if (idle==null) {
-    console.info("Idle contract not set, deploying mock idle")
-    idleContract = await deployAndSave('MockIDLE', 'ERC20Mock', ['IDLE', 'IDLE', ethers.utils.parseEther('1000')])
-  }
-  else {
-    idleContract = await ethers.getContractAt("ERC20", idle)
-  }
-
-  await deployAndSave('StakedIdle', 'VotingEscrow', [idleContract.address, 'Staked IDLE', 'stkIDLE', '1.0'])
-
-  console.log()
+  return true
 }
+
+module.exports.id = '0'

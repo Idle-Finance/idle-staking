@@ -49,7 +49,23 @@ module.exports = {
   namedAccounts: {
     idle: {
       1: '0x875773784af8135ea0ef43b5a374aad105c5d39e',
-      1337: '0x875773784af8135ea0ef43b5a374aad105c5d39e'
+      31337: '0x875773784af8135ea0ef43b5a374aad105c5d39e'
+    },
+    weth: {
+      1: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      31337: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+    },
+    feeTreasury: {
+      1: '0x69a62C24F16d4914a48919613e8eE330641Bcb94',
+      31337: 0
+    },
+    idleTimeLock: {
+      1: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556',
+      31337: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556'
+    },
+    voteDelegate: {
+      1: '0xFb3bD022D5DAcF95eE28a6B07825D4Ff9C5b3814', // Treasury League Multisig
+      31337: 0
     }
   },
   solidity: "0.8.4",
