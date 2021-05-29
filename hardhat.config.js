@@ -66,6 +66,21 @@ module.exports = {
     voteDelegate: {
       1: '0xFb3bD022D5DAcF95eE28a6B07825D4Ff9C5b3814', // Treasury League Multisig
       31337: 0
+    },
+    feeCollector: {
+      1: '0xBecC659Bfc6EDcA552fa1A67451cC6b38a0108E4',
+      31337: '0xBecC659Bfc6EDcA552fa1A67451cC6b38a0108E4'
+    },
+    governorAlpha: {
+      1: '0x2256b25CFC8E35c3135664FD03E77595042fe31B',
+      31337: '0x2256b25CFC8E35c3135664FD03E77595042fe31B'
+    },
+    timelock: {
+      1: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556',
+      31337: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556'
+    },
+    personWithIdle: {
+      31337: '0x107a369bc066c77ff061c7d2420618a6ce31b925'
     }
   },
   solidity: "0.8.4",
