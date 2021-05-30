@@ -214,7 +214,7 @@ describe("FeeDistributor.vy", async () => {
       })
     })
     describe('When can_checkpoint_token == true', async() => {
-      beforeEach(() => {
+      beforeEach(async () => {
         await feeDistributor.toggle_allow_checkpoint_token()
       })
       describe("When #stakers > 1", async () => {
