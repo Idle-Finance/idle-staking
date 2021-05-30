@@ -5,14 +5,16 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   console.log(`------------------ Executing deployment 04 on network ${network.name} ------------------\n`)
   const { governorAlpha, feeCollector } = await getNamedAccounts()
 
+  // get deployed contracts
   let feeCollectorContract = await ethers.getContractAt(feeCollectorABI, feeCollector)
   let feeDistributor = await ethers.getContract('FeeDistributor')
 
+  // encode calldata
   let allocation = [
     '10000', // Allocation slot 0 = Smart Treasury
     '10000', // Allocation slot 1 = Fee Treasury
     '35000', // Allocation slot 2 = Rebalabcer
-    '45000'   // Allocation slot 3 [NEW] = feeDistributor
+    '45000'  // Allocation slot 3 [NEW] = feeDistributor
   ]
   let calldata = feeCollectorContract
     .interface
@@ -23,20 +25,21 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
 
   // build proposal for IIP 9
 
-  let contracts = [feeCollectorContract]
+  let _contracts = [feeCollectorContract] // used for decoding data
 
   let targets = contracts.map(c => c.address)
   let values = [0]
   let signatures = ['addBeneficiaryAddress(address,uint256[])']
   let calldatas = [calldata]
   
-  let title = 'IIP-9 Add FeeDistributor as beneficiary to FeeCollector'
-  let info = 'Add the feeDistributor as a beneficiary to the feeCollector enabling staking. For more info: <link>'
+  let _title = 'IIP-9 Add FeeDistributor as beneficiary to FeeCollector'
+  let _info = 'Add the feeDistributor as a beneficiary to the feeCollector enabling staking. For more info: <link>'
 
-  let description = `${title}\n${info}`
+  let description = `${_title}\n${_info}`
 
+  // decode ABI calldata for validation before submitting tx
   let decodedCalldata = signatures.map((_, i) => {
-    return contracts[i]
+    return _contracts[i]
       .interface
       .decodeFunctionData(signatures[i], calldatas[i])
       .toString()
@@ -46,7 +49,8 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let governorAlphaContract = await ethers.getContractAt(governorAlphaABI, governorAlpha)
   let proposalCount = await governorAlphaContract.proposalCount()
 
-  console.log(`Creating proposal ${proposalCount.add('1').toString()} with args`)
+  // log arguments for proposal
+  console.log(`Creating proposal ${proposalCount.add('1').toString()} with args:`)
   console.log(`..targets            = ${targets}`)
   console.log(`..values             = ${values}`)
   console.log(`..signatures         = ${signatures}`)
@@ -54,6 +58,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   console.log(`..description        = ${description.replace('\n', '\\n')}`)
   console.log()
 
+  // create proposal
   let tx = await governorAlphaContract.propose(
     targets,
     values,
@@ -69,4 +74,4 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   return true
 }
 
-module.exports.id = '4'
+module.exports.id = '4' // flag to only run this migration once
