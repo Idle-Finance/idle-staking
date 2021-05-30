@@ -1,6 +1,7 @@
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
 const { time } = require('@openzeppelin/test-helpers')
+const { disableFork } = require('../lib/util'); disableFork() // disable forking for unit testing
 
 const toWei = ethers.utils.parseEther;
 const toEtherBN = (x) => ethers.BigNumber.from(x.toString());

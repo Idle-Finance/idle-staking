@@ -38,7 +38,7 @@ module.exports = {
     hardhat: {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-        enabled: parseBoolean(process.env.ENABLE_FORKING)
+        enabled: true
       }
     },
     local: {
@@ -75,8 +75,7 @@ module.exports = {
       1: '0x2256b25CFC8E35c3135664FD03E77595042fe31B',
       31337: '0x2256b25CFC8E35c3135664FD03E77595042fe31B'
     },
-    timelock: {
-      1: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556',
+    timelock: { // only used in local deployments
       31337: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556'
     },
     personWithIdle: {

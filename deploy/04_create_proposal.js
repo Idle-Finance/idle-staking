@@ -27,7 +27,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
 
   let _contracts = [feeCollectorContract] // used for decoding data
 
-  let targets = contracts.map(c => c.address)
+  let targets = _contracts.map(c => c.address)
   let values = [0]
   let signatures = ['addBeneficiaryAddress(address,uint256[])']
   let calldatas = [calldata]
