@@ -5,7 +5,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   const { weth, feeTreasury, idleTimeLock } = await getNamedAccounts()
   const toEtherBN = (x) => ethers.BigNumber.from(x.toString())
 
-  console.log(`------------------ Executing deployment 01 on network ${network.name} ------------------\n`)
+  console.log(`------------------ Executing deployment 02 on network ${network.name} ------------------\n`)
  
   let deployer = await getNetworkSigner()
   let deployerAddress = await deployer.getAddress()
@@ -39,4 +39,4 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   return true
 }
 
-module.exports.id = '1'
+module.exports.id = '2'

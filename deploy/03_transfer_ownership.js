@@ -1,7 +1,7 @@
 const { getNetworkSigner } = require("../lib/util")
 
 module.exports = async ({getNamedAccounts, ethers, network}) => {
-  console.log(`------------------ Executing deployment 02 on network ${network.name} ------------------\n`)
+  console.log(`------------------ Executing deployment 03 on network ${network.name} ------------------\n`)
   const { idleTimeLock } = await getNamedAccounts()
 
   let deployer = await getNetworkSigner()
@@ -54,4 +54,4 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   return true // flag to only run this migration once
 }
 
-module.exports.id = '2'
+module.exports.id = '3'

@@ -27,8 +27,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
 
 module.exports.skip = async({ network, ethers }) => {
   let networkChainId = (await ethers.provider.getNetwork()).chainId
-  console.log(`------------------ Executing deployment 03 on network ${network.name} ------------------\n`)
-
+  console.log(`-------------------- Executing setup 00 on network ${network.name} ---------------------\n`)
 
   if (networkChainId == 1) {
     console.log('This is a mainnet deployment. Skipping this step\n')

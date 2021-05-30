@@ -52,6 +52,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   console.log(`..signatures         = ${signatures}`)
   console.log(`..calldatas[decoded] = ${decodedCalldata}`)
   console.log(`..description        = ${description.replace('\n', '\\n')}`)
+  console.log()
 
   let tx = await governorAlphaContract.propose(
     targets,
@@ -64,8 +65,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let receipt = await tx.wait()
   let newProposalCount = await governorAlphaContract.proposalCount()
 
-  console.log(`Created proposal ${newProposalCount.toString()} @ ${receipt.transactionHash}`)
-  console.log()
+  console.log(`Created proposal ${newProposalCount.toString()} @ ${receipt.transactionHash}\n`)
   return true
 }
 
