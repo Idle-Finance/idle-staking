@@ -1,17 +1,40 @@
 const governorAlphaABI = require('../abi/governorAlpha.json')
+const { advanceBlocks, getNetworkSigner } = require("../lib/util")
+
+const { time } = require('@openzeppelin/test-helpers')
 
 module.exports = async ({getNamedAccounts, ethers, network}) => {
-  const { personWithIdle, governorAlpha, timelock } = await getNamedAccounts()
+  const { governorAlpha } = await getNamedAccounts()
 
-  await network.provider.request({method: "hardhat_impersonateAccount", params: [personWithIdle]});
-  const personWithIdleSigner = await ethers.provider.getSigner(personWithIdle);
+  // get deployer address
+  let deployer = await getNetworkSigner()
+  let deployerAddress = await deployer.getAddress()
 
   let governorAlphaContract = await ethers.getContractAt(governorAlphaABI, governorAlpha)
   let proposal = await governorAlphaContract.proposalCount()
 
-  console.log(`Voting on proposal ${proposal.toString()} as ${personWithIdle}`)
-  await governorAlphaContract.connect(personWithIdleSigner).castVote(proposal, true)
+  console.log('Advancing one block')
+  await advanceBlocks(1)
 
+  console.log(`Voting on proposal ${proposal.toString()} as ${deployerAddress}`)
+  await governorAlphaContract.connect(deployer).castVote(proposal, true) // not required to connect to contract, but added for completion
+
+  await advanceBlocks(17281)
+
+  await governorAlphaContract.queue(proposal);
+  console.log('Queued');
+
+  await time.increase('172900')
+  console.log("Time increased")
+  await advanceBlocks(1)
+  console.log("Advanced 1")
+
+  console.log("Executing Proposal");
+  let tx = await governorAlphaContract.execute(proposal)
+  let receipt = await tx.wait()
+
+  console.log(`Executed proposal ${proposal.toString()} @ ${receipt.transactionHash}`)
+  console.log(`Gas spend on executing proposal = ${receipt.gasUsed.toString()}\n`)
 }
 
 module.exports.skip = async({ network, ethers }) => {

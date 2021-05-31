@@ -16,10 +16,12 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
     '35000', // Allocation slot 2 = Rebalabcer
     '45000'  // Allocation slot 3 [NEW] = feeDistributor
   ]
-  let calldata = feeCollectorContract
-    .interface
-    .encodeFunctionData(
-      'addBeneficiaryAddress(address,uint256[])' ,
+  let calldata = ethers.
+    utils.
+    defaultAbiCoder.
+    encode(
+      feeCollectorContract
+      .interface.functions['addBeneficiaryAddress(address,uint256[])'].inputs,
       [feeDistributor.address, allocation]
     )
 
@@ -39,10 +41,14 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
 
   // decode ABI calldata for validation before submitting tx
   let decodedCalldata = signatures.map((_, i) => {
-    return _contracts[i]
-      .interface
-      .decodeFunctionData(signatures[i], calldatas[i])
-      .toString()
+    return ethers
+      .utils.
+      defaultAbiCoder.
+      decode(
+        _contracts[i]
+        .interface.functions[signatures[i]].inputs,
+        calldatas[i]
+      ).toString()
   })
 
   // Get GovernorAlpha
@@ -54,8 +60,9 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   console.log(`..targets            = ${targets}`)
   console.log(`..values             = ${values}`)
   console.log(`..signatures         = ${signatures}`)
-  console.log(`..calldatas[decoded] = ${decodedCalldata}`)
-  console.log(`..description        = ${description.replace('\n', '\\n')}`)
+  console.log(`..calldata           = ${calldatas}`)
+  console.log(`..calldata[decoded]  = ${decodedCalldata}`)
+  console.log(`...description       = ${description.replace('\n', '\\n')}`)
   console.log()
 
   // create proposal
