@@ -13,8 +13,8 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let allocation = [
     '10000', // Allocation slot 0 = Smart Treasury
     '10000', // Allocation slot 1 = Fee Treasury
-    '35000', // Allocation slot 2 = Rebalabcer
-    '45000'  // Allocation slot 3 [NEW] = feeDistributor
+    '30000', // Allocation slot 2 = Rebalabcer
+    '50000'  // Allocation slot 3 [NEW] = feeDistributor
   ]
   let calldata = ethers.
     utils.
