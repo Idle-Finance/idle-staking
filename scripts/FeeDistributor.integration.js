@@ -12,8 +12,8 @@ BLOCK_GAS_LIMIT = 12450000
 WEEK = 7 * 86400
 
 async function main() {
-  if (network.name != 'local') {
-    console.error('Integration test can only run on local network')
+  if (network.name != 'hardhat') {
+    console.error('Integration test can only run on hardhat network')
     return
   }
 
