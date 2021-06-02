@@ -26,16 +26,16 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   // toggling this flag enables any account to call `checkpoint_token()`
   console.log()
   let canCheckpoint = await feeDistributor.callStatic.can_checkpoint_token({gasLimit: 500000}) // 
-  console.log(`FeeDistributor can_checkpoint_token flag = '${canCheckpoint}'`)
+  console.log(`FeeDistributor 'can_checkpoint_token' flag = '${canCheckpoint}'`)
   if (canCheckpoint) { // flag is already set to true
     console.log('...Flag status unchanged')
   }
   else { // toggle flag
-    console.log('Toggling can_checkpoint_token flag...')
+    console.log('Toggling \'can_checkpoint_token\' flag...')
     let tx = await feeDistributor.connect(deployer).toggle_allow_checkpoint_token()
     let receipt = await tx.wait()
     let canCheckpoint = await feeDistributor.callStatic.can_checkpoint_token({gasLimit: 500000})
-    console.log(`FeeDistributor can_checkpoint_token flag now = '${canCheckpoint}' @ ${receipt.transactionHash}`)
+    console.log(`FeeDistributor 'can_checkpoint_token' flag now = '${canCheckpoint}' @ ${receipt.transactionHash}`)
   }
 
   console.log()
