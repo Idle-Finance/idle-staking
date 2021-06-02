@@ -47,7 +47,7 @@ async function main() {
   stakedBalance = await stakedIdle['balanceOf(address)'](stakerAddress)
   checkAproximate(stakedBalance, toWei('250'), "stkIdle balance at lock start should be ~ 250")
 
-  time.increase(time.duration.years(1))
+  await time.increase(time.duration.years(1))
   stakedBalance = await stakedIdle['balanceOf(address)'](stakerAddress)
   check(stakedBalance, toWei('0'), "stkIdle balance at lock end should be ~ 0")
 
