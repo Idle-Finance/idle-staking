@@ -44,6 +44,9 @@ module.exports = {
     local: {
       url: "http://127.0.0.1:8545",
       timeout: 2000000
+    },
+    mainnet: {
+      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
     }
   },
   namedAccounts: {
