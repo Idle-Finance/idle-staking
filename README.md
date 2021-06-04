@@ -7,8 +7,9 @@
 ## Running Unit Tests
 `npx hardhat test`
 
-## Running Integration Tests
-`bash ./startLocalFork.sh`
 
-in a new bash window
-`npx hardhat run scripts/<scriptname> --network local`
+## Running Integration Tests
+`npx hardhat run scripts/<scriptname>`
+
+## Deployment
+`npx hardhat deploy --network <network_name>`
