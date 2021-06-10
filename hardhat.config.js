@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-ethers")
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-vyper");
+require('@openzeppelin/hardhat-upgrades');
 require("hardhat-gas-reporter");
 require("hardhat-deploy");
 require("hardhat-deploy-ethers")
