@@ -51,14 +51,17 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
     function exchange(uint256 amountIn, uint256 minAmountOut) nonReentrant isExchanger external override returns (uint256) {
         require(FeeExchanger._inputToken.balanceOf(address(this)) >= amountIn, "FE: AMOUNT IN");
         
+        // Define swap path
         address[] memory path = new address[](2);
         path[0] = address(FeeExchanger._inputToken);
         path[1] = address(FeeExchanger._outputToken);
 
-        // approve input token for swapping
+        // Approve input token for swapping
         FeeExchanger._inputToken.safeIncreaseAllowance(address(_sushiswapRouter), amountIn);
+        
         uint256 balance0 = _outputToken.balanceOf(address(this));
         
+        // Swap tokens using sushi
         _sushiswapRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
           amountIn,
           minAmountOut, 
@@ -70,7 +73,7 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
         uint256 amountOut = FeeExchanger._outputToken.balanceOf(address(this)) - balance0;
         require(amountOut >= minAmountOut, "FE: MIN AMOUNT OUT");
 
-        // approve output token for `burn` to feeDistributor
+        // Approve output token to call `burn` on feeDistributor
         FeeExchanger._outputToken.safeIncreaseAllowance(address(FeeExchanger._outputAddress), amountOut);
         IFeeDistributor(FeeExchanger._outputAddress).burn(address(FeeExchanger._outputToken));
 
