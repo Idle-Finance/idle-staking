@@ -100,9 +100,10 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyG
      * @param newOutputAddress The new address to send swapped fees to.
      */
     function updateOutputAddress(address newOutputAddress) onlyOwner external override {
-        emit OutputAddressUpdated(_outputAddress, newOutputAddress);
-        
+        address previousAddress = _outputAddress;
         _outputAddress = newOutputAddress;
+
+        emit OutputAddressUpdated(previousAddress, newOutputAddress);
     }
 
     /**
