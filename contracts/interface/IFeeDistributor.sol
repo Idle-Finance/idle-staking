@@ -2,7 +2,12 @@
 
 pragma solidity =0.8.4;
 
-// Interface for FeeDistributor.vy contract
+/**
+ * @author Asaf Silman
+ * @title FeeDistributor Interface
+ * @notice Interface for a FeeDistributor based on curve.finance implementation.
+ * @dev This is a minimal implementation of the interface in solidity to implement and test the feeExchanger
+ */
 interface IFeeDistributor {
     event CheckpointToken(uint256 time, uint256 tokens);
 
