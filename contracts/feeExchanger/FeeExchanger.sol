@@ -11,7 +11,7 @@ import '../interface/IFeeExchanger.sol';
 
 /**
  * @author Asaf Silman
- * @title FeeExchanger abstract implementation of IFeeExchanger
+ * @title FeeExchanger Implementation
  * @notice This contract should be inherited by contracts specific to a DEX or exchange strategy for protocol fees.
  * @dev This contract implmenents the basic requirements for a feeExchanger.
  * @dev Contracts which inherit this are required to implmenent the `exchange` function.

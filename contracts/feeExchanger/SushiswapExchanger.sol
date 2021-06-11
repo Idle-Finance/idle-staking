@@ -11,8 +11,8 @@ import './FeeExchanger.sol';
 import '../interface/IFeeDistributor.sol';
 
 /**
- * @title Fee Exchanger implementation using Sushiswap
  * @author Asaf Silman
+ * @title FeeExchanger using Sushiswap
  * @dev This contract is upgradable and should be deployed using Openzeppelin upgrades
  * @notice Exchanges fees for `outputToken` and forwards to `outputAddress`
  */
@@ -77,7 +77,7 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
         FeeExchanger._outputToken.safeIncreaseAllowance(address(FeeExchanger._outputAddress), amountOut);
         IFeeDistributor(FeeExchanger._outputAddress).burn(address(FeeExchanger._outputToken));
 
-        emit TokenExchanged(FeeExchanger._inputToken, FeeExchanger._outputToken, amountIn, amountOut, _name);
+        emit TokenExchanged(amountIn, amountOut, _name);
 
         return amountOut;
     }
