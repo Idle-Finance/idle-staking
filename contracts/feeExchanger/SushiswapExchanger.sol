@@ -8,12 +8,13 @@ import './FeeExchanger.sol';
 
 contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
+    
     IUniswapV2Router02 private _sushiswapRouter;
 
     string constant _name = "Sushiswap Exchanger";
 
-    function initialize(IUniswapV2Router02 routerAddress, IERC20 inputToken, IERC20 outputToken, address feeDistributor) public initializer {
-        FeeExchanger.__FeeExchanger_init(inputToken, outputToken, feeDistributor);
+    function initialize(IUniswapV2Router02 routerAddress, IERC20 inputToken, IERC20 outputToken, address outputAddress) public initializer {
+        FeeExchanger.__FeeExchanger_init(inputToken, outputToken, outputAddress);
 
         _sushiswapRouter = routerAddress;
     }
@@ -25,7 +26,8 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
         path[0] = address(FeeExchanger._inputToken);
         path[1] = address(FeeExchanger._outputToken);
 
-        uint256 balance0 = _outputToken.balanceOf(address(this));
+        FeeExchanger._inputToken.safeIncreaseAllowance(address(_sushiswapRouter), amountIn);
+        uint256 balance0 = _outputToken.balanceOf(FeeExchanger._outputAddress);
         
         _sushiswapRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
           amountIn,
@@ -35,9 +37,8 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
           block.timestamp + 1800
         );
 
-        uint256 amountOut = FeeExchanger._outputToken.balanceOf(address(this)) - balance0;
-
-        require(amountOut > minAmountOut, "FE: MIN AMOUNT OUT");
+        uint256 amountOut = FeeExchanger._outputToken.balanceOf(FeeExchanger._outputAddress) - balance0;
+        require(amountOut >= minAmountOut, "FE: MIN AMOUNT OUT");
 
         emit TokenExchanged(FeeExchanger._inputToken, FeeExchanger._outputToken, amountIn, amountOut, _name);
 
