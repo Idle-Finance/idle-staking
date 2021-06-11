@@ -85,6 +85,7 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyG
     /**
      * @notice Check if an address is an exchanger.
      * @dev This is a view method to use with tools such as etherscan.
+     * @dev address(0) is not checked for exchanger.
      * @param exchanger The address of the exchanger.
      * @return Boolean whether address is exchanger
      */
@@ -95,7 +96,7 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyG
     /**
      * @notice Update the ouput address.
      * @dev Fees which have been swapped will be sent to the new address after this has been called.
-     * @dev address(0) is not checked in for newOutputAddress.
+     * @dev address(0) is not checked for newOutputAddress.
      * @param newOutputAddress The new address to send swapped fees to.
      */
     function updateOutputAddress(address newOutputAddress) onlyOwner external override {

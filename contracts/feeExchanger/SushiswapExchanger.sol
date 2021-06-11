@@ -27,7 +27,6 @@ contract SushiswapExchanger is FeeExchanger {
      * @notice Initialises the Sushiswap Exchanger contract.
      * @dev Most of the initialisation is done as part of the `FeeExchanger` initialisation.
      * @dev This method sets the internal sushiswap router address.
-     * @dev This method can only be called once.
      * @param routerAddress The address of the sushiswap router.
      * @param inputToken The token which the protocol fees are generated in. This should set to the WETH address.
      * @param outputToken The token which this contract will exchange fees into.
