@@ -29,6 +29,7 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
 
     /**
      * @notice Initialises the FeeExchanger.
+     * @dev Also intitalises the contract owner.
      * @param inputToken_ The input ERC20 token representing fees.
      * @param outputToken_ The output ERC20 token, fees will be exchanged into this currency.
      * @param outputAddress_ Exchanged fees will be transfered to this address.
