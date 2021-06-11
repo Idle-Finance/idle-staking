@@ -51,7 +51,7 @@ describe("FeeExchanger.sol", async() => {
         .to.be.revertedWith("FE: ALREADY EXCHANGER")
     })
 
-    it("Cannot be called by EOA that is not admin", async() => {
+    it("Cannot be called by address that is not admin", async() => {
       const { feeExchanger, randomAccount1, randomAccount2 } = fixtureData;
 
       expect(feeExchanger.connect(randomAccount2).addExchanger(randomAccount1.address))
@@ -82,7 +82,7 @@ describe("FeeExchanger.sol", async() => {
         .to.be.revertedWith("FE: NOT EXCHANGER")
     })
 
-    it("Cannot be called by EOA that is not admin", async() => {
+    it("Cannot be called by address that is not admin", async() => {
       const { feeExchanger, randomAccount1, randomAccount2 } = fixtureData;
 
       expect(feeExchanger.connect(randomAccount2).removeExchanger(randomAccount1.address))
@@ -109,10 +109,27 @@ describe("FeeExchanger.sol", async() => {
       expect(await feeExchanger.canExchange(randomAccount2.address)).to.be.false
     })
 
-    it("Can be called by EOA", async() => {
+    it("Can be called by random address", async() => {
       const { feeExchanger, randomAccount2, randomAccount1 } = fixtureData
 
       expect(await feeExchanger.connect(randomAccount2).canExchange(randomAccount1.address)).to.be.true
+    })
+  })
+
+  describe("#updateOutputAddress", async() => {
+    it("Changes output address", async() => {
+      const { feeExchanger, deployer, outputAccount, randomAccount1 } = fixtureData
+
+      expect(await feeExchanger.outputAddress()).to.equal(outputAccount.address)
+      await feeExchanger.connect(deployer).updateOutputAddress(randomAccount1.address)
+      expect(await feeExchanger.outputAddress()).to.equal(randomAccount1.address)
+    })
+
+    it("Reverts when called by address which is not admin", async() => {
+      const { feeExchanger, randomAccount1, randomAccount2 } = fixtureData
+
+      expect(feeExchanger.connect(randomAccount1).updateOutputAddress(randomAccount2.address))
+        .to.be.revertedWith("Ownable: caller is not the owner")
     })
   })
 

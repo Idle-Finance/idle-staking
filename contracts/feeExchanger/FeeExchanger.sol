@@ -9,7 +9,14 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 import '../interface/IFeeExchanger.sol';
 
-abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchangerUpgradable {
+/**
+ * @author Asaf Silman
+ * @title FeeExchanger abstract implementation of IFeeExchanger
+ * @notice This contract should be inherited by contracts specific to a DEX or exchange strategy for protocol fees.
+ * @dev This contract implmenents the basic requirements for a feeExchanger.
+ * @dev Contracts which inherit this are required to implmenent the `exchange` function
+ */
+abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchanger {
     using SafeERC20 for IERC20;
 
     IERC20 internal _inputToken;
@@ -17,9 +24,16 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
 
     address internal _outputAddress;
 
+    // Keep an internal mapping of which addresses can exchange fees
     mapping(address => bool) private _canExchange;
 
-    function __FeeExchanger_init(IERC20 inputToken_, IERC20 outputToken_, address outputAddress_) internal initializer {
+    /**
+     * @notice Initialises the FeeExchanger
+     * @param inputToken_ The input ERC20 token representing fees
+     * @param outputToken_ The output ERC20 token, fees will be exchanged into this currency
+     * @param outputAddress_ Exchanged fees will be transfered to this address
+     */
+    function __FeeExchanger_init(IERC20 inputToken_, IERC20 outputToken_, address outputAddress_) internal initializer {       
         OwnableUpgradeable.__Ownable_init();
         
         _inputToken = inputToken_;
@@ -28,6 +42,9 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
         _outputAddress = outputAddress_;
     }
 
+    /**
+     * 
+     */
     modifier isExchanger() {
         require(_canExchange[msg.sender], "FE: NOT EXCHANGER");
         _;
@@ -46,6 +63,10 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
     
     function canExchange(address exchanger) external view override returns (bool) {
         return _canExchange[exchanger];
+    }
+
+    function updateOutputAddress(address newOutputAddress) onlyOwner external override {
+        _outputAddress = newOutputAddress;
     }
 
     function inputToken() external view override returns (IERC20) { return _inputToken; }

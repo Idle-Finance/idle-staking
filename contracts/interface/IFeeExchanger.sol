@@ -4,10 +4,11 @@ pragma solidity =0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-interface IFeeExchangerUpgradable {
+interface IFeeExchanger {
     function inputToken() external returns (IERC20);
     function outputToken() external returns (IERC20);
 
+    function updateOutputAddress(address) external;
     function outputAddress() external returns (address);
 
     event TokenExchanged(IERC20 indexed tokenIn, IERC20 tokenOut, uint256 amountIn, uint256 amountOut, string exchangeName);
