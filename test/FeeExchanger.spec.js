@@ -68,13 +68,13 @@ describe("FeeExchanger.sol", async() => {
   })
 
   describe("#removeExchanger", async() => {
-    beforeEach(async() => {
+    beforeEach(async () => {
       const { feeExchanger, deployer, randomAccount1 } = fixtureData
 
       await feeExchanger.connect(deployer).addExchanger(randomAccount1.address)
     })
 
-    it("Can removed exchanger", async() => {
+    it("Can remove exchanger", async() => {
       const { feeExchanger, deployer, randomAccount1 } = fixtureData
 
       expect(await feeExchanger.canExchange(randomAccount1.address)).to.be.true

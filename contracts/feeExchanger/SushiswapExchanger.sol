@@ -8,6 +8,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 import './FeeExchanger.sol';
+import '../interface/IFeeDistributor.sol';
 
 /**
  * @title Fee Exchanger implementation using Sushiswap
@@ -54,19 +55,24 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
         path[0] = address(FeeExchanger._inputToken);
         path[1] = address(FeeExchanger._outputToken);
 
+        // approve input token for swapping
         FeeExchanger._inputToken.safeIncreaseAllowance(address(_sushiswapRouter), amountIn);
-        uint256 balance0 = _outputToken.balanceOf(FeeExchanger._outputAddress);
+        uint256 balance0 = _outputToken.balanceOf(address(this));
         
         _sushiswapRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
           amountIn,
           minAmountOut, 
           path,
-          FeeExchanger._outputAddress,
+          address(this),
           block.timestamp + 1800
         );
 
-        uint256 amountOut = FeeExchanger._outputToken.balanceOf(FeeExchanger._outputAddress) - balance0;
+        uint256 amountOut = FeeExchanger._outputToken.balanceOf(address(this)) - balance0;
         require(amountOut >= minAmountOut, "FE: MIN AMOUNT OUT");
+
+        // approve output token for `burn` to feeDistributor
+        FeeExchanger._outputToken.safeIncreaseAllowance(address(FeeExchanger._outputAddress), amountOut);
+        IFeeDistributor(FeeExchanger._outputAddress).burn(address(FeeExchanger._outputToken));
 
         emit TokenExchanged(FeeExchanger._inputToken, FeeExchanger._outputToken, amountIn, amountOut, _name);
 

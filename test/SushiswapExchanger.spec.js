@@ -4,8 +4,10 @@ const { loadFixture } = waffle;
 const { time } = require('@openzeppelin/test-helpers')
 const { disableFork } = require('../lib/util'); disableFork() // disable forking for unit testing
 
+const WEEK = 7 * 86400
 const toWei = ethers.utils.parseEther
 const toEthersBN = (x) => ethers.BigNumber.from(x.toString());
+const toWeek = (x) => toEthersBN(x).div(WEEK).mul(WEEK)
 
 describe("SushiswapExchanger.sol", async() => {
   async function fixture() {
@@ -31,18 +33,12 @@ describe("SushiswapExchanger.sol", async() => {
     const uniswapV2Router02 = await UniswapV2Router02.deploy(uniswapV2Library.address, "0x0000000000000000000000000000000000000000")
 
     // deploy ERC20 tokens
-    const mockInputToken = await (await ethers.getContractFactory("ERC20Mock")).deploy("InputToken", "IT", toWei("10000000")) // 10,000,000
+    const mockInputToken = await (await ethers.getContractFactory("ERC20MockWithDelegate")).deploy("InputToken", "IT", toWei("10000000")) // 10,000,000
     const mockOutputToken = await (await ethers.getContractFactory("ERC20Mock")).deploy("OuptutToken", "OT", toWei("10000000")) // 10,000,000
 
     // approve ERC20 to uniswap
     await mockInputToken.approve(uniswapV2Router02.address, toWei("500000"))
     await mockOutputToken.approve(uniswapV2Router02.address, toWei("500000"))
-
-    // deploy feeExchanger
-    const SushiswapExchanger = await ethers.getContractFactory("SushiswapExchanger")
-    const sushiswapExchanger = await upgrades.deployProxy(
-      SushiswapExchanger,
-      [uniswapV2Router02.address, mockInputToken.address, mockOutputToken.address, outputAccount.address])
 
     // create pair
     await uniswapV2Router02.addLiquidity(
@@ -55,9 +51,33 @@ describe("SushiswapExchanger.sol", async() => {
       toEthersBN(await time.latest()).add("1800")
     )
 
+    // deploy feeDistributor
+    const veTok = await (await ethers.getContractFactory("VotingEscrow")).deploy(
+      mockInputToken.address,
+      "Staked Token",
+      "stkTOK",
+      "1.0",
+      deployer.address
+    )
+
+    const feeDistributor = await (await ethers.getContractFactory("FeeDistributor")).deploy(
+      veTok.address,
+      toEthersBN(await time.latest()),
+      mockOutputToken.address,
+      deployer.address,
+      deployer.address
+    )
+
+    // deploy feeExchanger
+    const SushiswapExchanger = await ethers.getContractFactory("SushiswapExchanger")
+    const sushiswapExchanger = await upgrades.deployProxy(
+      SushiswapExchanger,
+      [uniswapV2Router02.address, mockInputToken.address, mockOutputToken.address, feeDistributor.address])
+
     return {
       uniswapV2Library, uniswapV2Router02, // uniswap
       sushiswapExchanger, mockInputToken, mockOutputToken, outputAccount, // sushiswapExchanger
+      feeDistributor, veTok, // staking
       deployer, randomAccount1, randomAccount2 } // accounts
   }
 
@@ -77,12 +97,40 @@ describe("SushiswapExchanger.sol", async() => {
       await sushiswapExchanger.connect(deployer).addExchanger(deployer.address)
     })
     it("Sends output token to output account", async() => {
-      const { deployer, sushiswapExchanger, mockOutputToken, outputAccount } = fixtureData
+      const { deployer, sushiswapExchanger, mockOutputToken, feeDistributor } = fixtureData
 
       await sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1'))
 
-      expect(await mockOutputToken.balanceOf(outputAccount.address))
+      expect(await mockOutputToken.balanceOf(feeDistributor.address))
       .to.be.closeTo(toWei('5000'), toWei('100')).and
+    })
+
+    describe("When can_checkpoint_token = true", async() => {
+      beforeEach(async()=>{
+        const { deployer, feeDistributor } = fixtureData
+        await feeDistributor.connect(deployer).toggle_allow_checkpoint_token()
+
+        let currentTime = await time.latest()
+        let currentWeek = await toWeek(currentTime)
+        let nextWeek = currentWeek.add(WEEK)
+
+        await time.increaseTo(nextWeek.toString()) // advance to next week
+      })
+
+      it("Updates feeDistributor internal balance", async() => {
+        const { deployer, sushiswapExchanger, feeDistributor, mockOutputToken } = fixtureData
+  
+        expect(await feeDistributor.token_last_balance()).to.equal(toWei('0'))
+        await sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1'))
+        expect(await feeDistributor.token_last_balance()).to.equal(await mockOutputToken.balanceOf(feeDistributor.address))
+      })
+  
+      it("Emits CheckpointToken event", async() => {
+        const { deployer, sushiswapExchanger, feeDistributor } = fixtureData
+  
+        expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
+          .to.emit(feeDistributor, "CheckpointToken")
+      })
     })
 
     it("Emits TokenExchanged event", async() => {
@@ -107,7 +155,7 @@ describe("SushiswapExchanger.sol", async() => {
     })
 
     it("Reverts when not called by exchanger", async() => {
-      const { deployer, sushiswapExchanger, randomAccount1 } = fixtureData
+      const { sushiswapExchanger, randomAccount1 } = fixtureData
 
       expect(sushiswapExchanger.connect(randomAccount1).exchange(toWei('5000'), toWei('1')))
         .to.be.revertedWith("FE: NOT EXCHANGER")
