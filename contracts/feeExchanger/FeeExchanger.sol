@@ -10,15 +10,17 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
     IERC20 internal _inputToken;
     IERC20 internal _outputToken;
 
-    address internal _feeDistributor;
+    address internal _outputAddress;
 
     mapping(address => bool) private _canExchange;
 
-    function initialize(IERC20 inputToken_, IERC20 outputToken_, address feeDistributor_) internal initializer {
+    function __FeeExchanger_init(IERC20 inputToken_, IERC20 outputToken_, address outputAddress_) internal initializer {
+        OwnableUpgradeable.__Ownable_init();
+        
         _inputToken = inputToken_;
         _outputToken = outputToken_;
 
-        _feeDistributor = feeDistributor_;
+        _outputAddress = outputAddress_;
     }
 
     modifier isExchanger() {
@@ -27,9 +29,13 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
     }
 
     function addExchanger(address exchanger) onlyOwner external override {
+        require(!_canExchange[exchanger], "FE: ALREADY EXCHANGER");
+
         _canExchange[exchanger] = true;
     }
     function removeExchanger(address exchanger) onlyOwner external override {
+        require(_canExchange[exchanger], "FE: NOT EXCHANGER");
+
         _canExchange[exchanger] = false;
     }
     
@@ -40,5 +46,5 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
     function inputToken() external view override returns (IERC20) { return _inputToken; }
     function outputToken() external view override returns (IERC20) { return _outputToken; }
 
-    function feeDistributor() external view override returns (address) { return _feeDistributor; }
+    function outputAddress() external view override returns (address) { return _outputAddress; }
 }

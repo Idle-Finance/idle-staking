@@ -8,16 +8,20 @@ import './FeeExchanger.sol';
 contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
     IUniswapV2Router02 private _sushiswapRouter;
 
-    function initialize(IUniswapV2Router02 routerAddress_, IERC20 inputToken_, IERC20 outputToken_, address feeDistributor_) public initializer {
-        FeeExchanger.initialize(inputToken_, outputToken_, feeDistributor_);
+    string constant _name = "Sushiswap Exchanger";
 
-        _sushiswapRouter = routerAddress_;
+    function initialize(IUniswapV2Router02 routerAddress, IERC20 inputToken, IERC20 outputToken, address feeDistributor) public initializer {
+        FeeExchanger.__FeeExchanger_init(inputToken, outputToken, feeDistributor);
+
+        _sushiswapRouter = routerAddress;
     }
 
     function exchange(uint256 amountIn, uint256 minAmountOut) nonReentrant isExchanger external override returns (uint256) {
+        require(FeeExchanger._inputToken.balanceOf(address(this)) >= amountIn, "FE: AMOUNT IN");
+        
         address[] memory path = new address[](2);
-        path[0] = address(_inputToken);
-        path[1] = address(_outputToken);
+        path[0] = address(FeeExchanger._inputToken);
+        path[1] = address(FeeExchanger._outputToken);
 
         uint256 balance0 = _outputToken.balanceOf(address(this));
         
@@ -25,15 +29,15 @@ contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
           amountIn,
           minAmountOut, 
           path,
-          _feeDistributor,
+          FeeExchanger._outputAddress,
           block.timestamp + 1800
         );
 
-        uint256 amountOut = _outputToken.balanceOf(address(this)) - balance0;
+        uint256 amountOut = FeeExchanger._outputToken.balanceOf(address(this)) - balance0;
 
         require(amountOut > minAmountOut, "FE: MIN AMOUNT OUT");
 
-        emit TokenExchanged(_inputToken, _outputToken, amountIn, amountOut);
+        emit TokenExchanged(FeeExchanger._inputToken, FeeExchanger._outputToken, amountIn, amountOut, _name);
 
         return amountOut;
     }
