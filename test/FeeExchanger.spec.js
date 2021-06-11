@@ -1,24 +1,20 @@
 const { expect } = require('chai')
 const { ethers, waffle, upgrades } = require('hardhat')
-const {loadFixture} = waffle;
+const { loadFixture } = waffle;
 const { disableFork } = require('../lib/util'); disableFork() // disable forking for unit testing
 
 const toWei = ethers.utils.parseEther
 
 describe("FeeExchanger.sol", async() => {
   async function fixture() {
-    let signers = await ethers.getSigners()
-    const deployer = signers[0]
-    const outputAccount = signers[1]
-    const randomAccount1 = signers[2]
-    const randomAccount2 = signers[3]
+    const [deployer, outputAccount, randomAccount1, randomAccount2] = await ethers.getSigners()
 
     const mockInputToken = await (await ethers.getContractFactory("ERC20Mock")).deploy("InputToken", "IT", toWei("1000000")) // 1,000,000
     const mockOutputToken = await (await ethers.getContractFactory("ERC20Mock")).deploy("OuptutToken", "OT", toWei("1000000")) // 1,000,000
 
-    const feeExchangerFactory = await ethers.getContractFactory("MockFeeExchanger")
+    const FeeExchanger = await ethers.getContractFactory("MockFeeExchanger")
     const feeExchanger = await upgrades.deployProxy(
-      feeExchangerFactory,
+      FeeExchanger,
       [mockInputToken.address, mockOutputToken.address, outputAccount.address])
 
     return {feeExchanger, mockInputToken, mockOutputToken, outputAccount, deployer, randomAccount1, randomAccount2}
@@ -30,8 +26,8 @@ describe("FeeExchanger.sol", async() => {
     fixtureData = await loadFixture(fixture)
   })
 
-  describe("Ownership", async() => {
-    it("Sets contract owner upon deployment", async() => {
+  describe("#__FeeExchanger_init", async() => {
+    it("Sets contract owner", async() => {
       const {feeExchanger, deployer} = fixtureData
 
       expect(await feeExchanger.owner()).to.equal(deployer.address)
