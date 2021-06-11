@@ -1,11 +1,13 @@
 pragma solidity =0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 import './FeeExchanger.sol';
 
 contract SushiswapExchanger is FeeExchanger, ReentrancyGuardUpgradeable {
+    using SafeERC20 for IERC20;
     IUniswapV2Router02 private _sushiswapRouter;
 
     string constant _name = "Sushiswap Exchanger";
