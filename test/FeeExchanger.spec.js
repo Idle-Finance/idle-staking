@@ -48,7 +48,7 @@ describe("FeeExchanger.sol", async() => {
       expect(await feeExchanger.canExchange(randomAccount1.address)).to.be.false
       await feeExchanger.connect(deployer).addExchanger(randomAccount1.address)
       expect(feeExchanger.connect(deployer).addExchanger(randomAccount1.address))
-        .to.be.revertedWith("FE: NOT EXCHANGER")
+        .to.be.revertedWith("FE: ALREADY EXCHANGER")
     })
 
     it("Cannot be called by EOA that is not admin", async() => {
