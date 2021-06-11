@@ -4,6 +4,11 @@ pragma solidity =0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+/**
+ * @author Asaf Silman
+ * @title Interface for a FeeExchanger
+ * @dev This interface should be implemented to swap fees generated from a protocol via a DEX
+ */
 interface IFeeExchanger {
     function inputToken() external returns (IERC20);
     function outputToken() external returns (IERC20);
