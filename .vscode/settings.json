@@ -1,3 +1,0 @@
-{
-    "vyper.command": "docker run -v $(pwd):$(pwd) vyperlang/vyper:0.2.7"
-}
