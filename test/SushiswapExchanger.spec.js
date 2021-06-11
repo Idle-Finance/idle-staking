@@ -96,14 +96,6 @@ describe("SushiswapExchanger.sol", async() => {
       // deployer can exchange funds
       await sushiswapExchanger.connect(deployer).addExchanger(deployer.address)
     })
-    it("Sends output token to output account", async() => {
-      const { deployer, sushiswapExchanger, mockOutputToken, feeDistributor } = fixtureData
-
-      await sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1'))
-
-      expect(await mockOutputToken.balanceOf(feeDistributor.address))
-      .to.be.closeTo(toWei('5000'), toWei('100')).and
-    })
 
     describe("When can_checkpoint_token = true", async() => {
       beforeEach(async()=>{
@@ -131,6 +123,33 @@ describe("SushiswapExchanger.sol", async() => {
         expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
           .to.emit(feeDistributor, "CheckpointToken")
       })
+    })
+
+    // These tests are included to test for an quirk case in the `burn` function which deposits the entire balance 
+    // of the caller, which would be the feeExchanger
+    describe("When FeeExchanger already has output token", async() => {
+      beforeEach(async() => {
+        const { deployer, sushiswapExchanger, mockOutputToken } = fixtureData
+
+        await mockOutputToken.connect(deployer).transfer(sushiswapExchanger.address, toWei('5000'))
+      })
+      it("Sends output token and token balance to output address", async() => {
+        const { deployer, sushiswapExchanger, mockOutputToken, feeDistributor } = fixtureData
+
+        await sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1'))
+  
+        expect(await mockOutputToken.balanceOf(feeDistributor.address))
+        .to.be.closeTo(toWei('10000'), toWei('100'))
+      })
+    })
+
+    it("Sends output token to output account", async() => {
+      const { deployer, sushiswapExchanger, mockOutputToken, feeDistributor } = fixtureData
+
+      await sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1'))
+
+      expect(await mockOutputToken.balanceOf(feeDistributor.address))
+      .to.be.closeTo(toWei('5000'), toWei('100'))
     })
 
     it("Emits TokenExchanged event", async() => {

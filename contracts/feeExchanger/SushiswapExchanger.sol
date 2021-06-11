@@ -44,8 +44,10 @@ contract SushiswapExchanger is FeeExchanger {
      * @dev This method validates the minAmountOut was transfered to the output address.
      * @dev The expiration time is hardcoded to 1800 seconds, or 30 minutes.
      * @dev This method can only be called by an approved exchanger, see FeeExchanger.sol for more info.
+     * @dev This method can be static called to analyse the output amount of tokens at a given time.
      * @param amountIn The input amount of fees to swap.
      * @param minAmountOut The minimum output amount of tokens to receive after the swap has executed.
+     * @return The amount of output token which was exchanged
      */
     function exchange(uint256 amountIn, uint256 minAmountOut) nonReentrant isExchanger external override returns (uint256) {
         require(FeeExchanger._inputToken.balanceOf(address(this)) >= amountIn, "FE: AMOUNT IN");
@@ -58,7 +60,7 @@ contract SushiswapExchanger is FeeExchanger {
         // Approve input token for swapping
         FeeExchanger._inputToken.safeIncreaseAllowance(address(_sushiswapRouter), amountIn);
         
-        uint256 balance0 = _outputToken.balanceOf(address(this));
+        uint256 balance0 = FeeExchanger._outputToken.balanceOf(address(this));
         
         // Swap tokens using sushi
         _sushiswapRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
@@ -69,11 +71,14 @@ contract SushiswapExchanger is FeeExchanger {
           block.timestamp + 1800
         );
 
-        uint256 amountOut = FeeExchanger._outputToken.balanceOf(address(this)) - balance0;
+        uint256 balance1 = FeeExchanger._outputToken.balanceOf(address(this));
+        uint256 amountOut = balance1 - balance0;
         require(amountOut >= minAmountOut, "FE: MIN AMOUNT OUT");
 
         // Approve output token to call `burn` on feeDistributor
-        FeeExchanger._outputToken.safeIncreaseAllowance(address(FeeExchanger._outputAddress), amountOut);
+        // Note, burn will transfer the entire balance of outputToken
+        FeeExchanger._outputToken.safeIncreaseAllowance(address(FeeExchanger._outputAddress), balance1);
+        // Deposit output token via `burn`
         IFeeDistributor(FeeExchanger._outputAddress).burn(address(FeeExchanger._outputToken));
 
         emit TokenExchanged(amountIn, amountOut, _name);
