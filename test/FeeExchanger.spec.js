@@ -57,6 +57,14 @@ describe("FeeExchanger.sol", async() => {
       expect(feeExchanger.connect(randomAccount2).addExchanger(randomAccount1.address))
         .to.be.revertedWith("Ownable: caller is not the owner")
     })
+
+    it("Emits ExchangerUpdated event with canExchange=true", async() => {
+      const { feeExchanger, deployer, randomAccount1 } = fixtureData
+
+      expect(feeExchanger.connect(deployer).addExchanger(randomAccount1.address))
+        .to.emit(feeExchanger, "ExchangerUpdated")
+        .withArgs(randomAccount1.address, true)
+    })
   })
 
   describe("#removeExchanger", async() => {
@@ -87,6 +95,14 @@ describe("FeeExchanger.sol", async() => {
 
       expect(feeExchanger.connect(randomAccount2).removeExchanger(randomAccount1.address))
         .to.be.revertedWith("Ownable: caller is not the owner")
+    })
+
+    it("Emits ExchangerUpdated event with canExchange=false", async() => {
+      const { feeExchanger, deployer, randomAccount1 } = fixtureData
+
+      expect(feeExchanger.connect(deployer).removeExchanger(randomAccount1.address))
+        .to.emit(feeExchanger, "ExchangerUpdated")
+        .withArgs(randomAccount1.address, false)
     })
   })
 
@@ -130,6 +146,14 @@ describe("FeeExchanger.sol", async() => {
 
       expect(feeExchanger.connect(randomAccount1).updateOutputAddress(randomAccount2.address))
         .to.be.revertedWith("Ownable: caller is not the owner")
+    })
+
+    it("Emits an OutputAddressUpdated event", async() => {
+      const { feeExchanger, deployer, outputAccount, randomAccount1 } = fixtureData
+
+      expect(feeExchanger.connect(deployer).updateOutputAddress(randomAccount1.address))
+        .to.emit(feeExchanger, "OutputAddressUpdated")
+        .withArgs(outputAccount.address, randomAccount1.address)
     })
   })
 
