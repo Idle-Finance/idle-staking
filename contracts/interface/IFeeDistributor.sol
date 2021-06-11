@@ -2,6 +2,7 @@
 
 pragma solidity =0.8.4;
 
+// Interface for FeeDistributor.vy contract
 interface IFeeDistributor {
     event CheckpointToken(uint256 time, uint256 tokens);
 
