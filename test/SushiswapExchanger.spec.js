@@ -127,7 +127,7 @@ describe("SushiswapExchanger.sol", async() => {
 
     // These tests are included to test for an quirk case in the `burn` function which deposits the entire balance 
     // of the caller, which would be the feeExchanger
-    describe("When FeeExchanger already has output token", async() => {
+    describe("When FeeExchanger already has output token balance", async() => {
       beforeEach(async() => {
         const { deployer, sushiswapExchanger, mockOutputToken } = fixtureData
 
