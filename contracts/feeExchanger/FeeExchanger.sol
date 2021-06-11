@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
 import '../interface/IFeeExchanger.sol';
 
@@ -16,7 +17,7 @@ import '../interface/IFeeExchanger.sol';
  * @dev This contract implmenents the basic requirements for a feeExchanger.
  * @dev Contracts which inherit this are required to implmenent the `exchange` function.
  */
-abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchanger {
+abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, IFeeExchanger {
     using SafeERC20 for IERC20;
 
     IERC20 internal _inputToken;
@@ -29,13 +30,14 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, IFeeExchang
 
     /**
      * @notice Initialises the FeeExchanger.
-     * @dev Also intitalises the contract owner.
+     * @dev Also intitalises Ownable and ReentrancyGuard 
      * @param inputToken_ The input ERC20 token representing fees.
      * @param outputToken_ The output ERC20 token, fees will be exchanged into this currency.
      * @param outputAddress_ Exchanged fees will be transfered to this address.
      */
     function __FeeExchanger_init(IERC20 inputToken_, IERC20 outputToken_, address outputAddress_) internal initializer {       
         OwnableUpgradeable.__Ownable_init();
+        ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
         
         _inputToken = inputToken_;
         _outputToken = outputToken_;
