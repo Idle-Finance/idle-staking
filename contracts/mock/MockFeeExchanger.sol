@@ -2,7 +2,7 @@
 
 pragma solidity =0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import '../feeExchanger/FeeExchanger.sol';
 
 /**
@@ -12,7 +12,7 @@ import '../feeExchanger/FeeExchanger.sol';
  */
 
 contract MockFeeExchanger is FeeExchanger {
-    function initialize(IERC20 inputToken, IERC20 outputToken, address feeDistributor) public initializer {
+    function initialize(IERC20Upgradeable inputToken, IERC20Upgradeable outputToken, address feeDistributor) public initializer {
         FeeExchanger.__FeeExchanger_init(inputToken, outputToken, feeDistributor);
     }
 

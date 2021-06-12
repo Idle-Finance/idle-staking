@@ -2,7 +2,7 @@
 
 pragma solidity =0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
  * @author Asaf Silman
@@ -14,12 +14,12 @@ interface IFeeExchanger {
      * @notice View function to retrieve the input token address.
      * @return The input token address.
      */
-    function inputToken() external view returns (IERC20);
+    function inputToken() external view returns (IERC20Upgradeable);
     /**
      * @notice View function to retrieve the output token address.
      * @return The output token address.
      */
-    function outputToken() external view returns (IERC20);
+    function outputToken() external view returns (IERC20Upgradeable);
 
     /**
      * @notice Emitted when the output address is updated.

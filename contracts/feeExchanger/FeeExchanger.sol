@@ -2,8 +2,8 @@
 
 pragma solidity =0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
@@ -18,10 +18,10 @@ import '../interface/IFeeExchanger.sol';
  * @dev Contracts which inherit this are required to implmenent the `exchange` function.
  */
 abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, IFeeExchanger {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IERC20 internal _inputToken;
-    IERC20 internal _outputToken;
+    IERC20Upgradeable internal _inputToken;
+    IERC20Upgradeable internal _outputToken;
 
     address internal _outputAddress;
 
@@ -35,7 +35,11 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyG
      * @param outputToken_ The output ERC20 token, fees will be exchanged into this currency.
      * @param outputAddress_ Exchanged fees will be transfered to this address.
      */
-    function __FeeExchanger_init(IERC20 inputToken_, IERC20 outputToken_, address outputAddress_) internal initializer {       
+    function __FeeExchanger_init(
+        IERC20Upgradeable inputToken_, 
+        IERC20Upgradeable outputToken_,
+        address outputAddress_
+    ) internal initializer {       
         OwnableUpgradeable.__Ownable_init();
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
         
@@ -110,13 +114,13 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyG
      * @notice Return the input token address.
      * @return Input token address.
      */
-    function inputToken() external view override returns (IERC20) { return _inputToken; }
+    function inputToken() external view override returns (IERC20Upgradeable) { return _inputToken; }
 
     /**
      * @notice Return the ouput token address.
      * @return Output token address.
      */
-    function outputToken() external view override returns (IERC20) { return _outputToken; }
+    function outputToken() external view override returns (IERC20Upgradeable) { return _outputToken; }
 
     /**
      * @notice Return the output address.

@@ -2,8 +2,8 @@
 
 pragma solidity =0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 import './FeeExchanger.sol';
@@ -16,7 +16,7 @@ import '../interface/IFeeDistributor.sol';
  * @notice Exchanges fees for `outputToken` and forwards to `outputAddress`
  */
 contract SushiswapExchanger is FeeExchanger {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
     
     // Sushiswap router is implmenented using the uniswap interface
     IUniswapV2Router02 private _sushiswapRouter;
@@ -32,7 +32,7 @@ contract SushiswapExchanger is FeeExchanger {
      * @param outputToken The token which this contract will exchange fees into.
      * @param outputAddress The address where fees will be redirected to.
      */
-    function initialize(IUniswapV2Router02 routerAddress, IERC20 inputToken, IERC20 outputToken, address outputAddress) public initializer {
+    function initialize(IUniswapV2Router02 routerAddress, IERC20Upgradeable inputToken, IERC20Upgradeable outputToken, address outputAddress) public initializer {
         FeeExchanger.__FeeExchanger_init(inputToken, outputToken, outputAddress);
 
         _sushiswapRouter = routerAddress;
