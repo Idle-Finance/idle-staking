@@ -21,6 +21,7 @@ describe("SushiswapExchanger.sol", async() => {
       [
         "constructor(address _feeToSetter)",
         "function createPair(address tokenA, address tokenB) external returns (address pair)",
+        "function getPair(address tokenA, address tokenB) external view returns (address pair)"
       ],
       UniswapV2FactoryBytecode
     )
@@ -120,7 +121,7 @@ describe("SushiswapExchanger.sol", async() => {
       it("Emits CheckpointToken event", async() => {
         const { deployer, sushiswapExchanger, feeDistributor } = fixtureData
   
-        expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
+        await expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
           .to.emit(feeDistributor, "CheckpointToken")
       })
     })
@@ -155,29 +156,155 @@ describe("SushiswapExchanger.sol", async() => {
     it("Emits TokenExchanged event", async() => {
       const { deployer, sushiswapExchanger } = fixtureData
 
-      expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
+      await expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
         .to.emit(sushiswapExchanger, "TokenExchanged")
     })
 
     it("Reverts when 'minAmountOut < amountOut'", async() => {
       const { deployer, sushiswapExchanger } = fixtureData
 
-      expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('5001')))
+      await expect(sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('5001')))
         .to.be.revertedWith("UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT")
     })
 
     it("Reverts when amountIn > balance of input token", async() => {
       const { deployer, sushiswapExchanger } = fixtureData
 
-      expect(sushiswapExchanger.connect(deployer).exchange(toWei('5001'), toWei('1')))
+      await expect(sushiswapExchanger.connect(deployer).exchange(toWei('5001'), toWei('1')))
         .to.be.revertedWith("FE: AMOUNT IN")
     })
 
-    it("Reverts when not called by exchanger", async() => {
+    it("Reverts when called by account which is not exchanger", async() => {
       const { sushiswapExchanger, randomAccount1 } = fixtureData
 
-      expect(sushiswapExchanger.connect(randomAccount1).exchange(toWei('5000'), toWei('1')))
+      await expect(sushiswapExchanger.connect(randomAccount1).exchange(toWei('5000'), toWei('1')))
         .to.be.revertedWith("FE: NOT EXCHANGER")
+    })
+  })
+
+  describe("#updatePath", async() => {
+    // Deploy a new pair such that
+    // InputToken ---> NewToken ---> OutputToken
+    // is a valid route
+    async function prepareUpdatePathTest() {
+      const { deployer, mockInputToken, mockOutputToken, uniswapV2Router02, uniswapV2Library } = fixtureData
+
+      const mockNewToken = await (await ethers.getContractFactory("ERC20Mock")).deploy("NewToken", "NT", toWei("10000000")) // 10,000,000
+      await mockInputToken.approve(uniswapV2Router02.address, toWei("100000"))
+      await mockOutputToken.approve(uniswapV2Router02.address, toWei("100000"))
+      await mockNewToken.approve(uniswapV2Router02.address, toWei("200000"))
+
+      // Create InputToken ---> NewToken pair
+      await uniswapV2Router02.addLiquidity(
+        mockInputToken.address,
+        mockNewToken.address,
+        toWei("100000"), // 100,000
+        toWei("100000"), // 100,000
+        toWei('1'), toWei('1'),
+        deployer.address, // deployer receives LP tokens
+        toEthersBN(await time.latest()).add("1800")
+      )
+
+      // Create NewToken ---> OutputToken pair
+      await uniswapV2Router02.addLiquidity(
+        mockNewToken.address,
+        mockOutputToken.address,
+        toWei("100000"), // 100,000
+        toWei("100000"), // 100,000
+        toWei('1'), toWei('1'),
+        deployer.address, // deployer receives LP tokens
+        toEthersBN(await time.latest()).add("1800")
+      )
+
+      const pair0 = await uniswapV2Library.getPair(mockInputToken.address, mockNewToken.address)
+      const pair1 = await uniswapV2Library.getPair(mockNewToken.address, mockOutputToken.address)
+
+      return { mockNewToken, pair0, pair1 }
+    }  
+
+    let updatePathFixtureData;
+
+    beforeEach(async() => {
+      updatePathFixtureData = await prepareUpdatePathTest()
+      const { sushiswapExchanger, deployer } = fixtureData
+
+      // deployer can exchange funds
+      await sushiswapExchanger.connect(deployer).addExchanger(deployer.address)
+    })
+    it("Updates the router path", async() => {
+      const { mockNewToken } = updatePathFixtureData
+      const { sushiswapExchanger, deployer, mockInputToken, mockOutputToken } = fixtureData
+      let path = [mockInputToken, mockOutputToken].map(x=>x.address)
+
+      expect(await sushiswapExchanger.getPath()).to.eql(path)
+      
+      // new path mockInputToken ---> mockNewToken ---> mockOutputToken
+      path.splice(1, 0, mockNewToken.address)
+      await sushiswapExchanger.connect(deployer).updatePath(path)
+      
+      expect(await sushiswapExchanger.getPath()).to.eql(path)
+    })
+
+    it("Exchanges using the new path", async() => {
+      const { mockNewToken, pair0, pair1 } = updatePathFixtureData
+      const { sushiswapExchanger, deployer, mockInputToken, mockOutputToken, uniswapV2Library } = fixtureData
+      let path = [mockInputToken, mockNewToken, mockOutputToken].map(x=>x.address)
+
+      // let pair0 = await uniswapV2Library.getPair(mockInputToken.address, mockNewToken.address)
+      // let pair1 = await uniswapV2Library.getPair(mockNewToken.address, mockOutputToken.address)
+
+      await mockInputToken.connect(deployer).transfer(sushiswapExchanger.address, toWei('5000')) // 5,000
+
+      let = pair0NewTokenBalance0 = await mockNewToken.balanceOf(pair0)
+      let = pair1NewTokenBalance0 = await mockNewToken.balanceOf(pair1)
+
+      await sushiswapExchanger.connect(deployer).updatePath(path)
+      await sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1'))
+
+      let = pair0NewTokenBalance1 = await mockNewToken.balanceOf(pair0)
+      let = pair1NewTokenBalance1 = await mockNewToken.balanceOf(pair1)
+
+      expect(pair0NewTokenBalance1.sub(pair0NewTokenBalance0))
+        .to.be.closeTo(toWei('-5000'), toWei('500'))
+      
+      expect(pair1NewTokenBalance1.sub(pair1NewTokenBalance0))
+      .to.be.closeTo(toWei('5000'), toWei('500'))
+    })
+
+    it("Reverts when first address of path is not output token", async() => {
+      const { mockNewToken } = updatePathFixtureData
+      const { sushiswapExchanger, deployer, mockInputToken } = fixtureData
+      let path = [mockNewToken, mockInputToken].map(x=>x.address)
+
+      await expect(sushiswapExchanger.connect(deployer).updatePath(path))
+        .to.be.revertedWith("FE: PATH INPUT")
+    })
+
+    it("Reverts when last address of path is not output token", async() => {
+      const { mockNewToken } = updatePathFixtureData
+      const { sushiswapExchanger, deployer, mockInputToken } = fixtureData
+      let path = [mockInputToken, mockNewToken].map(x=>x.address)
+
+      await expect(sushiswapExchanger.connect(deployer).updatePath(path))
+        .to.be.revertedWith("FE: PATH OUTPUT")
+    })
+
+    it("Reverts when called by account which is not exchanger", async() => {
+      const { mockNewToken } = updatePathFixtureData
+      const { sushiswapExchanger, randomAccount1, mockInputToken, mockOutputToken } = fixtureData
+
+      let path = [mockInputToken, mockNewToken, mockOutputToken].map(x=>x.address)
+      await expect(sushiswapExchanger.connect(randomAccount1).updatePath(path))
+        .to.be.revertedWith("FE: NOT EXCHANGER")
+    })
+  })
+
+  describe("#getPath", async() => {
+    it("Returns the router path", async() => {
+      const { sushiswapExchanger, mockInputToken, mockOutputToken } = fixtureData
+      let path = [mockInputToken, mockOutputToken].map(x=>x.address)
+
+      expect(await sushiswapExchanger.getPath()).to.eql(path)
     })
   })
 })
