@@ -16,7 +16,7 @@ contract MockFeeExchanger is FeeExchanger {
         FeeExchanger.__FeeExchanger_init(inputToken, outputToken, feeDistributor);
     }
 
-    function exchange(uint256 amountIn, uint256 minAmountOut) isExchanger external override returns (uint256) {
+    function exchange(uint256 amountIn, uint256 minAmountOut) onlyExchanger external override returns (uint256) {
         return 0;
     }
 }

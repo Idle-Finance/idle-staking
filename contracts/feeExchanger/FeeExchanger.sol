@@ -54,7 +54,7 @@ abstract contract FeeExchanger is Initializable, OwnableUpgradeable, ReentrancyG
     /**
      * @notice Modifier to check if msg.sender can exchange.
      */
-    modifier isExchanger() {
+    modifier onlyExchanger() {
         require(_canExchange[msg.sender], "FE: NOT EXCHANGER");
         _;
     }

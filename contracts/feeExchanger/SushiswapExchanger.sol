@@ -20,6 +20,7 @@ contract SushiswapExchanger is FeeExchanger {
     
     // Sushiswap router is implmenented using the uniswap interface
     IUniswapV2Router02 private _sushiswapRouter;
+    address[] private _path;
 
     string constant _name = "Sushiswap Exchanger";
 
@@ -27,6 +28,7 @@ contract SushiswapExchanger is FeeExchanger {
      * @notice Initialises the Sushiswap Exchanger contract.
      * @dev Most of the initialisation is done as part of the `FeeExchanger` initialisation.
      * @dev This method sets the internal sushiswap router address.
+     * @dev This method also initialises the router path.
      * @param routerAddress The address of the sushiswap router.
      * @param inputToken The token which the protocol fees are generated in. This should set to the WETH address.
      * @param outputToken The token which this contract will exchange fees into.
@@ -36,6 +38,10 @@ contract SushiswapExchanger is FeeExchanger {
         FeeExchanger.__FeeExchanger_init(inputToken, outputToken, outputAddress);
 
         _sushiswapRouter = routerAddress;
+
+        _path = new address[](2);
+        _path[0] = address(_inputToken);
+        _path[1] = address(_outputToken);
     }
 
     /**
@@ -48,13 +54,8 @@ contract SushiswapExchanger is FeeExchanger {
      * @param minAmountOut The minimum output amount of tokens to receive after the swap has executed.
      * @return The amount of output token which was exchanged
      */
-    function exchange(uint256 amountIn, uint256 minAmountOut) nonReentrant isExchanger external override returns (uint256) {
+    function exchange(uint256 amountIn, uint256 minAmountOut) nonReentrant onlyExchanger external override returns (uint256) {
         require(FeeExchanger._inputToken.balanceOf(address(this)) >= amountIn, "FE: AMOUNT IN");
-        
-        // Define swap path
-        address[] memory path = new address[](2);
-        path[0] = address(FeeExchanger._inputToken);
-        path[1] = address(FeeExchanger._outputToken);
 
         // Approve input token for swapping
         FeeExchanger._inputToken.safeIncreaseAllowance(address(_sushiswapRouter), amountIn);
@@ -65,7 +66,7 @@ contract SushiswapExchanger is FeeExchanger {
         _sushiswapRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
           amountIn,
           minAmountOut, 
-          path,
+          _path,
           address(this),
           block.timestamp + 1800
         );
@@ -82,5 +83,27 @@ contract SushiswapExchanger is FeeExchanger {
         emit TokenExchanged(amountIn, amountOut, _name);
 
         return amountOut;
+    }
+
+    /**
+     * @notice Updates the swapping path for the router.
+     * @dev The first element of the path must be the input token.
+     * @dev The last element of the path must be the output token.
+     * @dev This method is only callable by an exchanger.
+     * @param newPath The new router path.
+     */
+    function updatePath(address[] memory newPath) onlyExchanger external {
+        require(newPath[0]==address(FeeExchanger._inputToken), "FE: PATH INPUT");
+        require(newPath[newPath.length-1]==address(FeeExchanger._outputToken), "FE: PATH OUTPUT");
+
+        _path = newPath;
+    }
+
+    /**
+     * @notice View function to return the router path.
+     * @return The router path.
+     */
+    function getPath() external view returns (address[] memory) {
+        return _path;
     }
 }
