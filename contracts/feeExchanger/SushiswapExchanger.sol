@@ -72,7 +72,6 @@ contract SushiswapExchanger is FeeExchanger {
 
         uint256 balance1 = FeeExchanger._outputToken.balanceOf(address(this));
         uint256 amountOut = balance1 - balance0;
-        require(amountOut >= minAmountOut, "FE: MIN AMOUNT OUT");
 
         // Approve output token to call `burn` on feeDistributor
         // Note, burn will transfer the entire balance of outputToken
