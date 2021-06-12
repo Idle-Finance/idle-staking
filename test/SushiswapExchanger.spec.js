@@ -250,9 +250,6 @@ describe("SushiswapExchanger.sol", async() => {
       const { sushiswapExchanger, deployer, mockInputToken, mockOutputToken, uniswapV2Library } = fixtureData
       let path = [mockInputToken, mockNewToken, mockOutputToken].map(x=>x.address)
 
-      // let pair0 = await uniswapV2Library.getPair(mockInputToken.address, mockNewToken.address)
-      // let pair1 = await uniswapV2Library.getPair(mockNewToken.address, mockOutputToken.address)
-
       await mockInputToken.connect(deployer).transfer(sushiswapExchanger.address, toWei('5000')) // 5,000
 
       let = pair0NewTokenBalance0 = await mockNewToken.balanceOf(pair0)
