@@ -71,6 +71,11 @@ module.exports = async ({getNamedAccounts, ethers, network, upgrades}) => {
   
   let proxyAdminOwner = await proxyAdmin.owner()
   if (proxyAdminOwner != idleTimeLock) {
+    if (proxyAdminOwner != deployerAddress) {
+      console.error(`Current owner for proxyAdmin does not match deployer. ${proxyAdminOwner} != ${deployerAddress}`)
+      return false
+    }
+    console.log(`Tranfering owner for proxyAdmin from ${proxyAdminOwner} -> ${idleTimeLock}.`)
     let tx = await proxyAdmin.connect(deployer).transferOwnership(idleTimeLock)
     let receipt = await tx.wait()
 
@@ -84,6 +89,11 @@ module.exports = async ({getNamedAccounts, ethers, network, upgrades}) => {
   // Transfer ownership of sushiswap exchanger
   let sushiswapExchangerOwner = await sushiswapExchanger.owner()
   if (sushiswapExchangerOwner != idleTimeLock) {
+    if (sushiswapExchangerOwner != deployerAddress) {
+      console.error(`Current owner for sushiswapExchanger does not match deployer. ${sushiswapExchangerOwner} != ${deployerAddress}`)
+      return false
+    }
+    console.log(`Tranfering owner for sushiswapExchanger from ${sushiswapExchangerOwner} -> ${idleTimeLock}.`)
     let tx = await sushiswapExchanger.connect(deployer).transferOwnership(idleTimeLock)
     let receipt = await tx.wait()
 
