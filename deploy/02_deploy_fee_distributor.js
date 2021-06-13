@@ -2,7 +2,7 @@ const { deployAndSave, getNetworkSigner } = require("../lib/util")
 const { time } = require('@openzeppelin/test-helpers')
 
 module.exports = async ({getNamedAccounts, ethers, network}) => {
-  const { weth, feeTreasury, idleTimeLock } = await getNamedAccounts()
+  const { idle, feeTreasury } = await getNamedAccounts()
   const toEtherBN = (x) => ethers.BigNumber.from(x.toString())
 
   console.log(`------------------ Executing deployment 02 on network ${network.name} ------------------\n`)
@@ -17,7 +17,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let feeDistributor = await deployAndSave('FeeDistributor', 'FeeDistributor', [
     stakedIdle.address, // Staking Token
     startTime, // Start Time
-    weth, // Reward Token
+    idle, // Reward Token
     deployerAddress, // Admin. Set to deployer, but will be transfered to timelock
     feeTreasury // Emergency withdrawal address
   ])

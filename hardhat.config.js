@@ -84,6 +84,14 @@ module.exports = {
     },
     personWithIdle: {
       31337: '0x107a369bc066c77ff061c7d2420618a6ce31b925'
+    },
+    sushiswapRouter02: {
+      1: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+      31337: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F'
+    },
+    idleExchanger: {
+      1: '0xb3c8e5534f0063545cbbb7ce86854bf42db8872b',
+      31337: '0xb3c8e5534f0063545cbbb7ce86854bf42db8872b'
     }
   },
   solidity: "0.8.4",

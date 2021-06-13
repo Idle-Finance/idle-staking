@@ -1,7 +1,7 @@
 const { getNetworkSigner } = require("../lib/util")
 
-module.exports = async ({getNamedAccounts, ethers, network}) => {
-  console.log(`------------------ Executing deployment 03 on network ${network.name} ------------------\n`)
+module.exports = async ({getNamedAccounts, ethers, network, upgrades}) => {
+  console.log(`------------------ Executing deployment 04 on network ${network.name} ------------------\n`)
   const { idleTimeLock } = await getNamedAccounts()
 
   // get deployer address
@@ -11,6 +11,8 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   // get deployed contracts
   let stakedIdle = await ethers.getContract('StakedIdle')
   let feeDistributor = await ethers.getContract('FeeDistributor')
+  let proxyAdmin = await upgrades.admin.getInstance()
+  let sushiswapExchanger = await ethers.getContract('SushiswapExchanger')
 
   /*
   Transfering ownership is a two step process
@@ -63,9 +65,36 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   else {
     console.log(`FeeDistributor admin is already transfered to timelock: ${idleTimeLock}`)
   }
+  console.log()
+
+  // Transfer ownership of proxy admin and contract admin to
+  
+  let proxyAdminOwner = await proxyAdmin.owner()
+  if (proxyAdminOwner != idleTimeLock) {
+    let tx = await proxyAdmin.connect(deployer).transferOwnership(idleTimeLock)
+    let receipt = await tx.wait()
+
+    console.log(`ProxyAdmin owner updated @ ${receipt.transactionHash}`)
+  }
+  else {
+    console.log(`ProxyAdmin is already transfered to timelock: ${idleTimeLock}`)
+  }
+  console.log()
+
+  // Transfer ownership of sushiswap exchanger
+  let sushiswapExchangerOwner = await sushiswapExchanger.owner()
+  if (sushiswapExchangerOwner != idleTimeLock) {
+    let tx = await sushiswapExchanger.connect(deployer).transferOwnership(idleTimeLock)
+    let receipt = await tx.wait()
+
+    console.log(`Sushiswap owner updated @ ${receipt.transactionHash}`)
+  }
+  else {
+    console.log(`Sushiswap is already transfered to timelock: ${idleTimeLock}`)
+  }
 
   console.log()
   return true // flag to only run this migration once
 }
 
-module.exports.id = '3'
+module.exports.id = '4'
