@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha",
     "compile": "npx hardhat compile",
-    "compile:watch": "npx nodemon --ext sol --exec 'clear && npm run compile'"
+    "compile:watch": "npx nodemon --ext sol --exec 'clear && npm run compile'",
+    "test:deployment": "npx hardhat run scripts/postDeployment.js"
   },
   "repository": {
     "type": "git",
