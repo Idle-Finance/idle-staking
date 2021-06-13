@@ -153,6 +153,15 @@ describe("SushiswapExchanger.sol", async() => {
       .to.be.closeTo(toWei('5000'), toWei('100'))
     })
 
+    it("Returns the amount of tokens exchanged", async() => {
+      const { deployer, sushiswapExchanger, mockOutputToken, feeDistributor } = fixtureData
+
+      let amountOut = await sushiswapExchanger.connect(deployer).callStatic.exchange(toWei('5000'), toWei('1'))
+
+      await expect(() => sushiswapExchanger.connect(deployer).exchange(toWei('5000'), toWei('1')))
+        .to.changeTokenBalance(mockOutputToken, feeDistributor, amountOut)
+    })
+
     it("Emits TokenExchanged event", async() => {
       const { deployer, sushiswapExchanger } = fixtureData
 

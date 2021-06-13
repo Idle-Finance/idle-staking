@@ -40,8 +40,8 @@ contract SushiswapExchanger is FeeExchanger {
         _sushiswapRouter = routerAddress;
 
         _path = new address[](2);
-        _path[0] = address(_inputToken);
-        _path[1] = address(_outputToken);
+        _path[0] = address(inputToken);
+        _path[1] = address(outputToken);
     }
 
     /**
