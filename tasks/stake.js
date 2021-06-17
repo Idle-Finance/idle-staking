@@ -7,10 +7,11 @@ const { types } = require("hardhat/config")
 module.exports = task("stake", "Stake IDLE in stkIDLE contract")
 .addOptionalParam("amount", "Amount of idle to add", "100")
 .addOptionalParam("signernum", "Signer index to use for staking", 0, types.int)
+.addOptionalParam('stkidle', "stkIDLE address", "")
 .setAction(async(args, hre) => {
   const { time } = require('@openzeppelin/test-helpers')
   const {ethers, getNamedAccounts} = hre
-  const {amount, signernum} = args
+  const {amount, signernum, stkidle} = args
 
   const toWei = ethers.utils.parseEther
   const toEtherBN = (x) => ethers.BigNumber.from(x.toString());
@@ -20,7 +21,13 @@ module.exports = task("stake", "Stake IDLE in stkIDLE contract")
     const account = (await ethers.getSigners())[signernum]
 
     const idleContract = await ethers.getContractAt(idleABI, idle)
-    const stakedIdle = await ethers.getContract('stkIDLE')
+
+    let stakedIdle
+    if (stkidle == "") {
+      stakedIdle = await ethers.getContract('stkIDLE')
+    } else {
+      stakedIdle = await ethers.getContractAt('VotingEscrow', stkidle)
+    }
 
     await account.sendTransaction({to: personWithIdle, value: ethers.utils.parseEther("0.1")})
     await network.provider.request({method: "hardhat_impersonateAccount", params: [personWithIdle]});

@@ -25,6 +25,7 @@ require("./tasks/topUpFeeDistributor")
 require("./tasks/stake")
 require("./tasks/stakeBalance")
 require("./tasks/claimBalance")
+require("./tasks/sendidle")
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
