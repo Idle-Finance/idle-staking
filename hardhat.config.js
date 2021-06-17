@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-ethers")
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-vyper");
+require("@nomiclabs/hardhat-etherscan");
 require('@openzeppelin/hardhat-upgrades');
 require("hardhat-gas-reporter");
 require("hardhat-deploy");
@@ -19,12 +20,10 @@ task("accounts", "Prints the list of accounts", async () => {
   }
 });
 
+require("./tasks/mockDeploy")
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
-
-function parseBoolean(str) {
-  return /true/i.test(str);
-}
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -68,7 +67,7 @@ module.exports = {
       31337: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556'
     },
     voteDelegate: {
-      1: '0xFb3bD022D5DAcF95eE28a6B07825D4Ff9C5b3814', // Treasury League Multisig
+      1: '0xb08696Efcf019A6128ED96067b55dD7D0aB23CE4', // Staking Multisig
       31337: 0
     },
     feeCollector: {
@@ -93,6 +92,11 @@ module.exports = {
       1: '0xb3c8e5534f0063545cbbb7ce86854bf42db8872b',
       31337: '0xb3c8e5534f0063545cbbb7ce86854bf42db8872b'
     }
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: process.env.ETHERSCAN_API_KEY
   },
   solidity: "0.8.4",
   vyper: {
