@@ -4,6 +4,9 @@ node_modules/
 cache
 artifacts
 
+# Local files
+deployments/local
+
 # Environment files
 .env
 

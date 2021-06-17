@@ -25,7 +25,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
       [sushiswapExchanger.address, allocation]
     )
 
-  // build proposal for IIP 9
+  // build proposal for IIP 10
 
   let _contracts = [feeCollectorContract] // used for decoding data
 
@@ -34,7 +34,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let signatures = ['addBeneficiaryAddress(address,uint256[])']
   let calldatas = [calldata]
   
-  let _title = 'IIP-9 Enable Single Token Staking for $IDLE'
+  let _title = 'IIP-10 Enable Single Token Staking for $IDLE'
   let _info = 'Add the Sushiswap Fee Exchanger as a beneficiary to the Fee Collector enabling staking. For more info: <link>'
 
   let description = `${_title}\n${_info}`
