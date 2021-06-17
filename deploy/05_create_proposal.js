@@ -2,19 +2,19 @@ const governorAlphaABI = require('../abi/governorAlpha.json')
 const feeCollectorABI = require('../abi/feeCollector.json')
 
 module.exports = async ({getNamedAccounts, ethers, network}) => {
-  console.log(`------------------ Executing deployment 04 on network ${network.name} ------------------\n`)
+  console.log(`------------------ Executing deployment 05 on network ${network.name} ------------------\n`)
   const { governorAlpha, feeCollector } = await getNamedAccounts()
 
   // get deployed contracts
   let feeCollectorContract = await ethers.getContractAt(feeCollectorABI, feeCollector)
-  let feeDistributor = await ethers.getContract('FeeDistributor')
+  let sushiswapExchanger = await ethers.getContract('SushiswapExchanger')
 
   // encode calldata
   let allocation = [
     '10000', // Allocation slot 0 = Smart Treasury
     '10000', // Allocation slot 1 = Fee Treasury
     '30000', // Allocation slot 2 = Rebalabcer
-    '50000'  // Allocation slot 3 [NEW] = feeDistributor
+    '50000'  // Allocation slot 3 [NEW] = sushiswapExchanger
   ]
   let calldata = ethers.
     utils.
@@ -22,7 +22,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
     encode(
       feeCollectorContract
       .interface.functions['addBeneficiaryAddress(address,uint256[])'].inputs,
-      [feeDistributor.address, allocation]
+      [sushiswapExchanger.address, allocation]
     )
 
   // build proposal for IIP 9
@@ -34,8 +34,8 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let signatures = ['addBeneficiaryAddress(address,uint256[])']
   let calldatas = [calldata]
   
-  let _title = 'IIP-9 Add FeeDistributor as beneficiary to FeeCollector'
-  let _info = 'Add the feeDistributor as a beneficiary to the feeCollector enabling staking. For more info: <link>'
+  let _title = 'IIP-9 Enable Single Token Staking for $IDLE'
+  let _info = 'Add the Sushiswap Fee Exchanger as a beneficiary to the Fee Collector enabling staking. For more info: <link>'
 
   let description = `${_title}\n${_info}`
 
@@ -81,4 +81,4 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   return true
 }
 
-module.exports.id = '4' // flag to only run this migration once
+module.exports.id = '5' // flag to only run this migration once

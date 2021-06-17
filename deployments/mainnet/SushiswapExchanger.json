@@ -1,0 +1,363 @@
+{
+  "address": "0x1594375Eee2481Ca5C1d2F6cE15034816794E8a3",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "exchanger",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "canExchange",
+          "type": "bool"
+        }
+      ],
+      "name": "ExchangerUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "previousAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "OutputAddressUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "exchangeName",
+          "type": "string"
+        }
+      ],
+      "name": "TokenExchanged",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "exchanger",
+          "type": "address"
+        }
+      ],
+      "name": "addExchanger",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "exchanger",
+          "type": "address"
+        }
+      ],
+      "name": "canExchange",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "exchange",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPath",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IUniswapV2Router02",
+          "name": "routerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERC20Upgradeable",
+          "name": "inputToken",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IERC20Upgradeable",
+          "name": "outputToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "outputAddress",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "inputToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20Upgradeable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "outputAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "outputToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20Upgradeable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "exchanger",
+          "type": "address"
+        }
+      ],
+      "name": "removeExchanger",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOutputAddress",
+          "type": "address"
+        }
+      ],
+      "name": "updateOutputAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "newPath",
+          "type": "address[]"
+        }
+      ],
+      "name": "updatePath",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x27b7e3ab9ba5e66c4c005f4ebb9516286197e116e759cce87c2e04896e47b72f",
+  "receipt": {
+    "to": null,
+    "from": "0x143daa7080f05557C510Be288D6491BC1bAc9958",
+    "contractAddress": "0x1594375Eee2481Ca5C1d2F6cE15034816794E8a3",
+    "transactionIndex": 114,
+    "gasUsed": "828971",
+    "logsBloom": "0x00000020000000000000000000000000400000000000000000800000000000000000000000000000004000000000000000000000000000000000000000000000000000000200000000000000000002000001000010800000000000000000000000000000020000000000000000000800000000800004000000000080000000400800000000000000000000000000000000000000000000000000000000800000000000000200000000000000004000000000000000000000000000000000000000000020000000000000000000000000000000000400000000000000000020000000000002000000000000000000000000000000000000020000000000000000",
+    "blockHash": "0x5f4ba1d958736ff43e1e9b98a2bc64cd687df3f27f511547541ea2db2a9828cb",
+    "transactionHash": "0x27b7e3ab9ba5e66c4c005f4ebb9516286197e116e759cce87c2e04896e47b72f",
+    "logs": [
+      {
+        "transactionIndex": 114,
+        "blockNumber": 12649550,
+        "transactionHash": "0x27b7e3ab9ba5e66c4c005f4ebb9516286197e116e759cce87c2e04896e47b72f",
+        "address": "0x1594375Eee2481Ca5C1d2F6cE15034816794E8a3",
+        "topics": [
+          "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b",
+          "0x0000000000000000000000008fa248e22655622581be74484b92b01207ce1905"
+        ],
+        "data": "0x",
+        "logIndex": 188,
+        "blockHash": "0x5f4ba1d958736ff43e1e9b98a2bc64cd687df3f27f511547541ea2db2a9828cb"
+      },
+      {
+        "transactionIndex": 114,
+        "blockNumber": 12649550,
+        "transactionHash": "0x27b7e3ab9ba5e66c4c005f4ebb9516286197e116e759cce87c2e04896e47b72f",
+        "address": "0x1594375Eee2481Ca5C1d2F6cE15034816794E8a3",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000143daa7080f05557c510be288d6491bc1bac9958"
+        ],
+        "data": "0x",
+        "logIndex": 189,
+        "blockHash": "0x5f4ba1d958736ff43e1e9b98a2bc64cd687df3f27f511547541ea2db2a9828cb"
+      },
+      {
+        "transactionIndex": 114,
+        "blockNumber": 12649550,
+        "transactionHash": "0x27b7e3ab9ba5e66c4c005f4ebb9516286197e116e759cce87c2e04896e47b72f",
+        "address": "0x1594375Eee2481Ca5C1d2F6cE15034816794E8a3",
+        "topics": [
+          "0x9250436514d830bb3a68aaa51ca5969b08725ba3b250d3755056689b3d7f5ec3"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000babb82456c013fd7e3f25857e0729de8207f80e2",
+        "logIndex": 190,
+        "blockHash": "0x5f4ba1d958736ff43e1e9b98a2bc64cd687df3f27f511547541ea2db2a9828cb"
+      },
+      {
+        "transactionIndex": 114,
+        "blockNumber": 12649550,
+        "transactionHash": "0x27b7e3ab9ba5e66c4c005f4ebb9516286197e116e759cce87c2e04896e47b72f",
+        "address": "0x1594375Eee2481Ca5C1d2F6cE15034816794E8a3",
+        "topics": [
+          "0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000006ba1dacc73a8fbb2f4f85361a374257dd5d7d0fa",
+        "logIndex": 191,
+        "blockHash": "0x5f4ba1d958736ff43e1e9b98a2bc64cd687df3f27f511547541ea2db2a9828cb"
+      }
+    ],
+    "blockNumber": 12649550,
+    "cumulativeGasUsed": "8565377",
+    "status": 1,
+    "byzantium": true
+  }
+}

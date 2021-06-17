@@ -6,3 +6,9 @@ artifacts
 
 # Environment files
 .env
+
+# OpenZeppelin
+.openzeppelin/unknown-*.json
+
+# IDE
+.vscode/

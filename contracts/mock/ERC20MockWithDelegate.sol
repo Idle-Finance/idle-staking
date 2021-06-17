@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 pragma solidity ^0.8.0;
 
 // interfaces
@@ -12,7 +14,7 @@ contract ERC20MockWithDelegate is ERC20 {
     string memory symbol,
     uint256 _creatorSupply
   )
-    ERC20(name, symbol) public {
+    ERC20(name, symbol) {
     _mint(address(this), 10**24); // 1,000,000
     _mint(msg.sender, _creatorSupply);
   }

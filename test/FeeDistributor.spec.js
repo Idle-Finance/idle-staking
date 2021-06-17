@@ -137,14 +137,6 @@ describe("FeeDistributor.vy", async () => {
 
         // at this point fee's can be claimed by stakers
       }
-      describe("When #stakers = 0", async () => {
-        beforeEach(() => {
-          distributeFees()
-        })
-        it('Fails to claim', async() => {
-          expect(feeDistributor.connect(stakers[0])['claim()']()).to.be.reverted
-        })
-      })
       describe("When #stakers = 1", async () => {
         let staker
 

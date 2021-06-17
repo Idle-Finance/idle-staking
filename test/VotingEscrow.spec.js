@@ -103,7 +103,7 @@ describe("VotingEscrow.vy", () => {
         expect(stakedBalance).to.be.closeTo(amount, toWei('10'))
       })
       it("Cannot create a new lock before expiry", async () => {
-        expect(veTok.connect(staker).create_lock(amount, getLockDuration(1)))
+        await expect(veTok.connect(staker).create_lock(amount, getLockDuration(1)))
           .to.be.revertedWith('Withdraw old tokens first')
       })
     })
@@ -123,7 +123,7 @@ describe("VotingEscrow.vy", () => {
       })
 
       it("Reverts when withdrawing before lock expires", async () => {
-        expect(veTok.connect(staker).withdraw()).to.be.revertedWith("The lock didn't expire")
+        await expect(veTok.connect(staker).withdraw()).to.be.revertedWith("The lock didn't expire")
       })
       it("Can withdraw after lock expires", async () => {
         // Need to call checkpoint atleast once a year otherwise the contract becomes locked
@@ -144,7 +144,7 @@ describe("VotingEscrow.vy", () => {
       account2 = stakers[1]
     })
     it('Reverts when called by non-admin EOA', async() => {
-      expect(veTok.connect(account1).update_delegate(account2.address)).to.be.reverted
+      await expect(veTok.connect(account1).update_delegate(account2.address)).to.be.reverted
       expect(await veTok.vote_delegatee()).to.equal(deployer.address)
     })
     it('To execute when called by owner', async() => {
