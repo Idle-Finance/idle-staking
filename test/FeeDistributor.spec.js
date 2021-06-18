@@ -106,37 +106,37 @@ describe("FeeDistributor.vy", async () => {
     })
   })
   describe("#claim", async () => {
+    let toDistribute = toWei('1000')
+    let distributeFees = async() => {
+      /*
+      Fees are distributed weekly based on the users proportion of stkIDLE to the total supply.
+      Total supply is calculated at the start of each week.
+
+      Fees can be claimed at the end of the week.
+
+      Fees are checkpointed using the `checkpoint_token` function daily.
+
+      Fees received between the last checkpoint of the previous week, and the first checkpoint of the next week are split evently.
+      */
+
+      // First checkpoint - incase no checkpoint was made since the previous week
+      await feeDistributor.checkpoint_token()
+
+      let currentTime = await time.latest()
+      let currentWeek = await toWeek(currentTime)
+      let nextWeek = currentWeek.add(WEEK)
+      await time.increaseTo(nextWeek.toString()) // advance to next week
+
+      await feeDistributor.checkpoint_token() // first checkpoint of the new week
+      await erc20Reward.transfer(feeDistributor.address, toDistribute) // distribute fee
+      await feeDistributor.checkpoint_token() // checkpoint
+
+      await time.increase(time.duration.weeks(1)) // advance by 1 week 
+      await feeDistributor.checkpoint_token() // checkpoint new week.
+
+      // at this point fee's can be claimed by stakers
+    }
     describe('When can_checkpoint_token == false', async() => {
-      let toDistribute = toWei('1000')
-      let distributeFees = async() => {
-        /*
-        Fees are distributed weekly based on the users proportion of stkIDLE to the total supply.
-        Total supply is calculated at the start of each week.
-
-        Fees can be claimed at the end of the week.
-
-        Fees are checkpointed using the `checkpoint_token` function daily.
-
-        Fees received between the last checkpoint of the previous week, and the first checkpoint of the next week are split evently.
-        */
-
-        // First checkpoint - incase no checkpoint was made since the previous week
-        await feeDistributor.checkpoint_token()
-
-        let currentTime = await time.latest()
-        let currentWeek = await toWeek(currentTime)
-        let nextWeek = currentWeek.add(WEEK)
-        await time.increaseTo(nextWeek.toString()) // advance to next week
-
-        await feeDistributor.checkpoint_token() // first checkpoint of the new week
-        await erc20Reward.transfer(feeDistributor.address, toDistribute) // distribute fee
-        await feeDistributor.checkpoint_token() // checkpoint
-
-        await time.increase(time.duration.weeks(1)) // advance by 1 week 
-        await feeDistributor.checkpoint_token() // checkpoint new week.
-
-        // at this point fee's can be claimed by stakers
-      }
       describe("When #stakers = 1", async () => {
         let staker
 
@@ -211,7 +211,23 @@ describe("FeeDistributor.vy", async () => {
         await feeDistributor.toggle_allow_checkpoint_token()
       })
       describe("When #stakers > 1", async () => {
-        // TODO: similar tests as above
+        let staker1
+        let staker2
+
+        beforeEach(async() => {
+          staker1 = stakers[0]
+          staker2 = stakers[1]
+        })
+        it("Distributes rewards when to staked evenly", async() => {
+          await lockTokenForDuration(erc20, veTok, staker1)
+          await lockTokenForDuration(erc20, veTok, staker2)
+          await distributeFees()
+
+          await expect(() => feeDistributor.connect(staker1)['claim()']())
+            .to.changeTokenBalances(erc20Reward, [staker1, feeDistributor], [toWei('500'), toWei('-500')])
+          await expect(() => feeDistributor.connect(staker2)['claim()']())
+            .to.changeTokenBalances(erc20Reward, [staker2, feeDistributor], [toWei('500'), toWei('-500')])
+        })
       })
     })
   })
