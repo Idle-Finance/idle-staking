@@ -83,8 +83,9 @@ module.exports = {
       1: '0x2256b25CFC8E35c3135664FD03E77595042fe31B',
       31337: '0x2256b25CFC8E35c3135664FD03E77595042fe31B'
     },
-    timelock: { // only used in local deployments
-      31337: '0xD6dABBc2b275114a2366555d6C481EF08FDC2556'
+    devMultisig: {
+      1: '0xe8eA8bAE250028a8709A3841E0Ae1a44820d677b',
+      31337: '0xe8eA8bAE250028a8709A3841E0Ae1a44820d677b'
     },
     personWithIdle: {
       31337: '0x107a369bc066c77ff061c7d2420618a6ce31b925'

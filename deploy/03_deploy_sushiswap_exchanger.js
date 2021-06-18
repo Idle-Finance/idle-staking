@@ -19,6 +19,7 @@ module.exports = async ({getNamedAccounts, network}) => {
   if (isExchanger) {
     console.log(`Exchanger ${idleExchanger} is already configured`)
   } else {
+    console.log(`Configuring exchanger ${idleExchanger} with sushiswapExchanger`)
     let tx = await sushiswapExchanger.connect(deployer).addExchanger(idleExchanger)
     let receipt = await tx.wait()
 
