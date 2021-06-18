@@ -68,7 +68,7 @@ module.exports = async ({getNamedAccounts, ethers, network, upgrades}) => {
   console.log()
 
   // Transfer ownership of proxy admin and contract admin to dev league
-  let proxyAdminOwner = await proxyAdmin.owner()
+  let proxyAdminOwner = await proxyAdmin.connect(deployer).callStatic['owner()']()
   if (proxyAdminOwner != devMultisig) {
     if (proxyAdminOwner != deployerAddress) {
       console.error(`Current owner for proxyAdmin does not match deployer. ${proxyAdminOwner} != ${deployerAddress}`)
