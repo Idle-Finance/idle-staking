@@ -17,9 +17,9 @@ Idle tokens which have been staked are vote delegated to the [idle staking multi
 - feeExchanger - [0x1594375eee2481ca5c1d2f6ce15034816794e8a3](https://etherscan.io/address/0x1594375eee2481ca5c1d2f6ce15034816794e8a3)
 
 Other addresses
-- feeExchangerProxyAdmin - 0x6ba1dacc73a8fbb2f4f85361a374257dd5d7d0fa
-- feeExchangerImp - 0x8fa248e22655622581be74484b92b01207ce1905
-- Staking Multisig - 0xb08696efcf019a6128ed96067b55dd7d0ab23ce4
+- feeExchangerProxyAdmin - [0x6ba1dacc73a8fbb2f4f85361a374257dd5d7d0fa](https://etherscan.io/address/0x6ba1dacc73a8fbb2f4f85361a374257dd5d7d0fa)
+- feeExchangerImp - [0x8fa248e22655622581be74484b92b01207ce1905](https://etherscan.io/address/0x8fa248e22655622581be74484b92b01207ce1905)
+- Staking Multisig - [0xb08696efcf019a6128ed96067b55dd7d0ab23ce4](https://etherscan.io/address/0xb08696efcf019a6128ed96067b55dd7d0ab23ce4)
 
 ## Installation
 This project was developed using hardhat. Due to some [issues with the vyper plugin](https://github.com/nomiclabs/hardhat/issues/1364) this project does not currently build on windows.
