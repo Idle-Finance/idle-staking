@@ -1,9 +1,13 @@
+const { getNetworkSigner } = require("../lib/util")
+
 const governorAlphaABI = require('../abi/governorAlpha.json')
 const feeCollectorABI = require('../abi/feeCollector.json')
 
+let { SafeEthersSigner, SafeService } = require('@gnosis.pm/safe-ethers-adapters')
+
 module.exports = async ({getNamedAccounts, ethers, network}) => {
   console.log(`------------------ Executing deployment 05 on network ${network.name} ------------------\n`)
-  const { governorAlpha, feeCollector } = await getNamedAccounts()
+  const { governorAlpha, feeCollector, devMultisig } = await getNamedAccounts()
 
   // get deployed contracts
   let feeCollectorContract = await ethers.getContractAt(feeCollectorABI, feeCollector)
@@ -52,6 +56,21 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   })
 
   // Get GovernorAlpha
+  let signer
+  let networkChainId = (await ethers.provider.getNetwork()).chainId
+
+  if (networkChainId == 1) {
+    console.log("Executing Tx with gnosis safe")
+
+    const service = new SafeService('https://safe-transaction.gnosis.io/')
+    let networkSigner = await getNetworkSigner()
+    signer = await SafeEthersSigner.create(devMultisig, networkSigner, service)
+
+    console.log(`Connected to gnosis safe @ ${signer.address}`)
+  }
+  else {
+    signer = await getNetworkSigner()
+  }
   let governorAlphaContract = await ethers.getContractAt(governorAlphaABI, governorAlpha)
   let proposalCount = await governorAlphaContract.proposalCount()
 
@@ -66,13 +85,21 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   console.log()
 
   // create proposal
-  let tx = await governorAlphaContract.propose(
+  let tx = await governorAlphaContract.connect(signer).propose(
     targets,
     values,
     signatures,
     calldatas,
     description
   )
+
+  if (networkChainId == 1) {
+    console.log("USER ACTION REQUIRED")
+    console.log("Go to the Gnosis Safe Web App to confirm the transcation")
+    console.log(`link: https://gnosis-safe.io/app/#/safes/${signer.address}/transactions`)
+
+    return true
+  }
 
   let receipt = await tx.wait()
   let newProposalCount = await governorAlphaContract.proposalCount()

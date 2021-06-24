@@ -53,6 +53,12 @@ module.exports = {
     },
     mainnet: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
+    },
+    rinkeby: {
+      url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: {
+        mnemonic: "test test test test test test test test test test test junk"
+      }
     }
   },
   namedAccounts: {
