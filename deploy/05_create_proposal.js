@@ -35,7 +35,7 @@ module.exports = async ({getNamedAccounts, ethers, network}) => {
   let calldatas = [calldata]
   
   let _title = 'IIP-10 Enable Single Token Staking for $IDLE'
-  let _info = 'Add the Sushiswap Fee Exchanger as a beneficiary to the Fee Collector enabling staking. For more info: <link>'
+  let _info = 'Add the Sushiswap Fee Exchanger as a beneficiary to the Fee Collector enabling staking. For more info: https://gov.idle.finance/t/iip-10-single-token-staking/543'
 
   let description = `${_title}\n${_info}`
 
